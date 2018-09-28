@@ -1,0 +1,46 @@
+.AppBar{
+  height: 60px;
+  text-align: center;
+  padding-top: 15px;
+  font-size: 30px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.AppBar button{
+  width: 100px;
+}
+.Authentication{
+  text-align: center;
+  /* background-color: rgb(233, 239, 241) */
+
+}
+.Authentication label{
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(16, 107, 107);
+
+}
+.Authentication input{
+  border: 2px solid lightblue;
+  border-radius: 5px;
+  margin: 3px auto 10px auto;
+  padding-left: 8px;
+  width: 280px;
+  height: 25px;
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(1, 26, 26);
+
+}
+.Authentication input:focus{
+  background-color: rgb(233, 239, 241);
+}
+
+.Authentication button{
+  width: 280px;
+  height: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 5px auto;
+  background-color: rgb(227, 233, 238);
+}
