@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { AppBar, Button } from '@material-ui/core';
+import swal from 'sweetalert2';
 import '../../App.css';
 import firebase from 'firebase';
 import { Link } from 'react-router-dom';
@@ -17,6 +18,13 @@ class Signup extends Component {
         this.email = this.email.bind(this);
         this.password = this.password.bind(this);
         this.confrimPassword = this.confrimPassword.bind(this);
+    }
+    componentWillMount() {
+        const UserDataObj = JSON.parse(localStorage.getItem("UserDataObj"));
+        let that = this;
+        if (UserDataObj) {
+            that.props.history.push('/home')
+        }
     }
 
     name(e) {
@@ -38,28 +46,55 @@ class Signup extends Component {
     signup() {
         const { name, email, password, confrimPassword } = this.state;
         console.log(email, password, confrimPassword);
+        let that = this;
         if (name && email && password && confrimPassword) {
             if (password === confrimPassword && email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
                 firebase.auth().createUserWithEmailAndPassword(email, password)
                     .then(() => {
-                        this.props.history.push('/')
+                        swal({
+                            title: "success",
+                            text: "Signup Successful",
+                            type: 'success',
+                            showConfirmButton: false,
+                            timer: 1000,
+                        })
+                        setTimeout(()=>{
+                            this.props.history.push('/')
+                        },1500)
 
                     })
                     .catch(function (error) {
+                        swal({
+                            title: "error",
+                            text: error.message,
+                            type: 'error'
+                        })
                         console.log('Error in signup')
                     });
             }
             else {
                 if (!email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
-                    alert('Wrong Email Address');
+                    swal({
+                        title: "error",
+                        text: 'Wrong Email Address',
+                        type: 'error'
+                    })
                 }
                 else if (password !== confrimPassword) {
-                    alert('Password Did not Match');
+                    swal({
+                        title: "error",
+                        text: 'Password Did not Match',
+                        type: 'error'
+                    })
                 }
             }
         }
         else {
-            alert('Something Went Wrong');
+            swal({
+                title: "error",
+                text: 'Something Went Wrong',
+                type: 'error'
+            })
         }
     }
     render() {
@@ -89,9 +124,6 @@ class Signup extends Component {
                     <Button style={{ color: 'rgb(34, 157, 179)' }} onClick={this.signup.bind(this)}>Sign up</Button>
                     <br />
                     <span style={{ color: 'rgb(1, 26, 26)', fontWeight: 'bold' }}>Already signup? <Link style={{ color: 'rgb(34, 157, 179)', fontWeight: 'bold' }} to="/">Login</Link></span>
-                    <br />
-                    {/* <Button style={{ color: 'rgb(6, 63, 63)' }} onClick={this.login.bind(this)}>Login</Button> */}
-
                 </div>
             </div>
 

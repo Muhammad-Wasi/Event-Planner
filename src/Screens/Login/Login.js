@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import firebase from 'firebase';
 import { AppBar, Button } from '@material-ui/core';
+import swal from 'sweetalert2';
 import '../../App.css';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { changeState } from '../../Store/Action/action';
 
 class Login extends Component {
     constructor(props) {
@@ -16,10 +19,9 @@ class Login extends Component {
     }
 
     componentWillMount() {
-        const UserDataObj = localStorage.getItem("UserDataObj");
-        if (UserDataObj) {
-            this.props.history.push('/home')
-        }
+        const UserDataObj = JSON.parse(localStorage.getItem("UserDataObj"));
+        !!UserDataObj && this.props.history.push('/home')
+        // console.log(!!UserDataObj)
     }
 
     email(e) {
@@ -33,19 +35,35 @@ class Login extends Component {
     login() {
         const { email, password } = this.state;
         console.log(email, password);
+        let that = this;
         firebase.auth().signInWithEmailAndPassword(email, password)
-            .then((success) => {
-                const userUID = firebase.auth().currentUser.uid
+            .then(() => {
+                const userUID = firebase.auth().currentUser.uid;
                 const userDataObj = {
-                    userUID,
-                    email
+                    email,
+                    userUID
                 }
                 localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
-                this.props.history.push('/home')
-                console.log('Success', success)
+                swal({
+                    title: "success",
+                    text: "Login Successful",
+                    type: 'success',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+                setTimeout(() => {
+                    that.props.history.push('/home')
+                }, 1500);
+                // this.props.changeStateToReducer(userDataObj);
+                // console.log('Success', success)
             })
             .catch(function (error) {
                 console.log('Error in login', error.message);
+                swal({
+                    title: "error",
+                    text: error.message,
+                    type: 'error'
+                })
             });
     }
 
@@ -55,11 +73,79 @@ class Login extends Component {
 
     facebook() {
         console.log("Facebook");
-        // this.props.history.push('/signup')
+        var fbProvider = new firebase.auth.FacebookAuthProvider();
+        let that = this;
+        firebase.auth().signInWithPopup(fbProvider)
+            .then((result)=> {
+                var token = result.credential.accessToken;
+                console.log('token', token);
+                var user = result.user;
+                const userDataObj = {
+                    name: user.displayName,
+                    email: user.email,
+                    userUID: user.uid,
+                    photo: user.photoURL
+                }
+                localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
+                swal({
+                    title: "success",
+                    text: "Login Successful",
+                    type: 'success',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+                setTimeout(()=>{
+                    this.props.history.push('/home')
+                },1500)
+                console.log('user', user)
+            }).catch(function (error) {
+                var errorCode = error.code;
+                console.log('errorCode', errorCode)
+                var errorMessage = error.message;
+                swal({
+                    title: "error",
+                    text: errorMessage,
+                    type: 'error'
+                })
+                console.log('error', error)
+            });
     }
     google() {
         console.log("Google");
-        // this.props.history.push('/signup')
+        var provider = new firebase.auth.GoogleAuthProvider();
+        let that = this;
+        firebase.auth().signInWithPopup(provider)
+            .then((result)=> {
+                var token = result.credential.accessToken;
+                // console.log('token', token);
+                var user = result.user;
+                const userDataObj = {
+                    email: user.email,
+                    userUID: user.uid
+                }
+                localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
+                swal({
+                    title: "success",
+                    text: "Login Successful",
+                    type: 'success',
+                    showConfirmButton: false,
+                    timer: 1500,
+                })
+                setTimeout(()=>{
+                    this.props.history.push('/home')
+                },1500)
+                console.log('user', user)
+                // ...
+            })
+            .catch(function (error) {
+                var errorMessage = error.message;
+                swal({
+                    title: "error",
+                    text: errorMessage,
+                    type: 'error'
+                })
+                console.log('error', error)
+            });
     }
 
     render() {
@@ -67,10 +153,7 @@ class Login extends Component {
         return (
             <div>
                 <AppBar position={"static"} style={{ backgroundColor: 'rgb(34, 157, 179)' }} className="AppBar">
-                    {/* <Typography variant="title" color="inherit" > */}
                     Login
-                    {/* </Typography> */}
-                    {/* <Button color="inherit">Signup</Button> */}
                 </AppBar>
                 <div className="Authentication">
                     <label>Email</label>
@@ -95,5 +178,13 @@ class Login extends Component {
 
 }
 
-
 export default Login;
+// function mapDispatchToProps(dispatch) {
+//     return ({
+//         changeStateToReducer: (userDataObj) => {
+//             dispatch(changeState(userDataObj));
+//         }
+//     })
+// }
+
+// export default connect(null, mapDispatchToProps)(Login);
