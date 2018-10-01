@@ -19,12 +19,10 @@ class Signup extends Component {
         this.password = this.password.bind(this);
         this.confrimPassword = this.confrimPassword.bind(this);
     }
+
     componentWillMount() {
-        const UserDataObj = JSON.parse(localStorage.getItem("UserDataObj"));
-        let that = this;
-        if (UserDataObj) {
-            that.props.history.push('/home')
-        }
+        const user = localStorage.getItem('User');
+        user && this.props.history.push('/home')
     }
 
     name(e) {
@@ -49,6 +47,7 @@ class Signup extends Component {
         let that = this;
         if (name && email && password && confrimPassword) {
             if (password === confrimPassword && email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
+                swal.showLoading();
                 firebase.auth().createUserWithEmailAndPassword(email, password)
                     .then(() => {
                         swal({
@@ -58,9 +57,9 @@ class Signup extends Component {
                             showConfirmButton: false,
                             timer: 1000,
                         })
-                        setTimeout(()=>{
+                        setTimeout(() => {
                             this.props.history.push('/')
-                        },1500)
+                        }, 1500)
 
                     })
                     .catch(function (error) {

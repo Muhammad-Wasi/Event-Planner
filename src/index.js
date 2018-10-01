@@ -16,9 +16,7 @@ var config = {
     storageBucket: "task1-f3b77.appspot.com",
     messagingSenderId: "158564126124"
 };
-const fire = firebase.initializeApp(config);
-
-export default fire;
+firebase.initializeApp(config)
 
 ReactDOM.render(<App />, document.getElementById('root'));
 registerServiceWorker();
