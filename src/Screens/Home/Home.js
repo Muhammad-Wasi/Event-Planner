@@ -72,7 +72,7 @@ class Home extends Component {
                         </div>
                         {/* } */}
                         <div className="Heading">
-                            <span>Home</span>
+                            <span>Event</span>
                             {/* {selected === 'Organiser' &&
                                 <span>Hello Organiser</span>
                             }

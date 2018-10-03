@@ -191,14 +191,46 @@
 
 /* Organizer Work */
 
-.IconButton{
-  background-color: wheat;
-  float: right;
+.OrgHeader div:first-child{
+  width: 20%;
+  height: 10px;
+  float: left;
+  
 }
-.OrgHeading{
-  width: 80%;
-  font-size: 24px;
+.OrgHeader div:nth-child(2){
+  width: 60%;
+  float: left;
   text-align: center;
-  padding-left: 10px;
-  margin-left: 42.5%;
+  color: rgb(2, 77, 77);
+  border-bottom: 4px solid darkcyan;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.OrgHeader div:last-child{
+  width: 20%;
+  float: left;
+  text-align: end
+}
+.CardDiv{
+  width: 99.5%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 10px ;
+}
+.Cards{
+  border: 1px solid black;
+  margin: 5px;
+  border: 2px solid darkgrey;
+  border-radius: 5px;
+}
+
+.EventDetail{
+  /* overflow: visible; */
+  /* text-justify: inter-word; */
+  /* text-overflow: inherit; */
+  text-align: justify;
+  border: 1px solid black
 }

@@ -83,7 +83,7 @@ class Login extends Component {
                             // Get reference to the currently signed-in user
                             var prevUser = firebase.auth.currentUser;
                             // Sign in user with another account
-                            firebase.auth.signInWithCredential(credential).then(function (user) {
+                            firebase.auth().signInWithCredential(credential).then(function (user) {
                                 console.log("Sign In Success", user);
                                 var currentUser = user;
                                 localStorage.setItem('User', true);
