@@ -6,7 +6,8 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 
-<script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
+{/* <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase-app.js"></script> */}
+<script src="https://www.gstatic.com/firebasejs/5.5.2/firebase-firestore.js"></script>
 // Initialize Firebase
 var config = {
     apiKey: "AIzaSyDNwmHxHdvzP6oY7bR9w4FmkrL4V2ZGXNU",

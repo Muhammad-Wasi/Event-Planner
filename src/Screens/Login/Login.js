@@ -21,6 +21,7 @@ class Login extends Component {
         this.password = this.password.bind(this);
     }
 
+
     componentWillMount() {
         const user = localStorage.getItem('User');
         user && this.props.history.push('/home')
@@ -36,18 +37,14 @@ class Login extends Component {
 
     login() {
         const { email, password } = this.state;
-        console.log(email, password);
+        // console.log(email, password);
         let that = this;
         if (email && password) {
             swal.showLoading();
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then(() => {
                     const userUID = firebase.auth().currentUser.uid;
-                    const userDataObj = {
-                        email,
-                        userUID
-                    }
-                    localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
+                    localStorage.setItem('UserUID', userUID);
                     localStorage.setItem('User', true)
                     swal({
                         title: "success",
@@ -62,9 +59,10 @@ class Login extends Component {
                     // this.props.changeStateToReducer(userDataObj);
                     // console.log('Success', success)
                 })
-                .catch(function (error) {
+                .catch(error => {
                     console.log('Error in login', error.message);
                     var credential = firebase.auth.EmailAuthProvider.credential(email, password);
+                    // console.log('credential', credential)
                     firebase.auth().currentUser.linkAndRetrieveDataWithCredential(credential)
                         .then(function (usercred) {
                             var user = usercred.user;
@@ -82,21 +80,52 @@ class Login extends Component {
                             }, 1500);
                         }, function (error) {
                             console.log("Account linking error", error);
-                            swal({
-                                title: "error",
-                                text: "Something went wrong",
-                                type: 'error'
-                            })
-                        })
-                        .catch(() => {
-                            swal({
-                                title: "error",
-                                text: error.message,
-                                type: 'error'
-                            })
-                        })
+                            // Get reference to the currently signed-in user
+                            var prevUser = firebase.auth.currentUser;
+                            // Sign in user with another account
+                            firebase.auth.signInWithCredential(credential).then(function (user) {
+                                console.log("Sign In Success", user);
+                                var currentUser = user;
+                                localStorage.setItem('User', true);
+                                swal({
+                                    title: "success",
+                                    text: "Login Successful",
+                                    type: 'success',
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                })
+                                setTimeout(() => {
+                                    that.props.history.push('/home')
+                                }, 1500);
+                                // Merge prevUser and currentUser data stored in Firebase.
+                                // Note: How you handle this is specific to your application
 
-                });
+                                // After data is migrated delete the duplicate user
+                                return user.delete().then(function () {
+                                    // Link the OAuth Credential to original account
+                                    return prevUser.linkWithCredential(credential);
+                                }).then(function () {
+                                    // Sign in with the newly linked credential
+                                    return firebase.auth.signInWithCredential(credential);
+                                });
+                            }).catch(function (error) {
+                                console.log("Sign In Error", error);
+                                swal({
+                                    title: "error",
+                                    text: error.message,
+                                    type: 'error'
+                                })
+
+                            });
+                        });
+                })
+            // .catch((error) => {
+            //     swal({
+            //         title: "error",
+            //         text: error.message,
+            //         type: 'error'
+            //     })
+            // })
         }
         else {
             swal({
@@ -113,11 +142,11 @@ class Login extends Component {
 
     facebook() {
         console.log("Facebook");
+        swal.showLoading();
         var fbProvider = new firebase.auth.FacebookAuthProvider();
         let that = this;
         firebase.auth().signInWithPopup(fbProvider)
             .then((result) => {
-
                 firebase.auth().currentUser.linkWithPopup(fbProvider)
                     .then(function (result) {
 
@@ -163,7 +192,7 @@ class Login extends Component {
                             photo: user.photoURL
                         }
                         localStorage.setItem('User', true)
-                        localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
+                        // localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
                         swal({
                             title: "success",
                             text: "Login Successful",
@@ -180,11 +209,16 @@ class Login extends Component {
             })
             .catch(function (error) {
                 console.log("Sign In Error", error);
-                var errorMessage = error.message;
+                swal({
+                    title: "error",
+                    text: error.message,
+                    type: 'error'
+                })
             });
     }
     google() {
         console.log("Google");
+        swal.showLoading();
         var provider = new firebase.auth.GoogleAuthProvider();
         let that = this;
         firebase.auth().signInWithPopup(provider)
@@ -192,11 +226,25 @@ class Login extends Component {
                 var token = result.credential.accessToken;
                 // console.log('token', token);
                 var user = result.user;
+                console.log('user.uid', user.uid)
+                // firebase.database().ref('Users/').on('child_added', (snapshot) => {
+                //     console.log('snapshot.key', snapshot.key)
+                //     var snap = snapshot.val();
+                //     var snapkey = snapshot.key;
+                //     console.log('obj', snap.snapkey);
+                // if (snapshot.key === user.uid) {
+                //     alert('Done')
+                // }
+                // else {
+                //     alert('Not Done')
+                // }
+                // })
+
                 const userDataObj = {
                     email: user.email,
                     userUID: user.uid
                 }
-                localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
+                // localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
                 localStorage.setItem('User', true)
                 swal({
                     title: "success",

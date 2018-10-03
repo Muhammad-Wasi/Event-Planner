@@ -5,6 +5,7 @@ import '../../App.css';
 import firebase from 'firebase';
 import { Link } from 'react-router-dom';
 
+
 class Signup extends Component {
     constructor(props) {
         super(props);
@@ -12,7 +13,9 @@ class Signup extends Component {
             name: '',
             email: '',
             password: '',
-            confrimPassword: ''
+            confrimPassword: '',
+            selected: '',
+            photo: ''
         }
         this.name = this.name.bind(this);
         this.email = this.email.bind(this);
@@ -42,14 +45,20 @@ class Signup extends Component {
     }
 
     signup() {
-        const { name, email, password, confrimPassword } = this.state;
+        const db = firebase.database();
+        const { name, email, password, confrimPassword, selected, photo } = this.state;
         console.log(email, password, confrimPassword);
         let that = this;
-        if (name && email && password && confrimPassword) {
+        if (name && email && password && confrimPassword && selected) {
             if (password === confrimPassword && email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
                 swal.showLoading();
+                const userInfo = { name, email, selected };
                 firebase.auth().createUserWithEmailAndPassword(email, password)
                     .then(() => {
+                        var userUID = firebase.auth().currentUser.uid
+                        console.log('UserUID', userUID);
+                        const userInfo = { name, email, selected };
+                        db.ref("Users/" + userUID + '/').push(userInfo)
                         swal({
                             title: "success",
                             text: "Signup Successful",
@@ -96,8 +105,36 @@ class Signup extends Component {
             })
         }
     }
+
+
+
+    // handleFileUpload = () => {
+    //     let that = this;
+    //     var preview = document.querySelector('img'); //selects the query named img
+    //     var file = document.querySelector('input[type=file]').files[0]; //sames as here
+    //     var reader = new FileReader();
+
+    //     reader.onloadend = function () {
+    //         let pic = { "url": "", val: "0" };
+    //         pic.url = reader.result;
+    //         console.log('pic.url', pic.url)
+    //         // this.picArray.push(pic);
+    //         that.setState({ photo: pic.url });
+    //     };
+
+    //     if (file) {
+    //         reader.readAsDataURL(file); //reads the data as a URL
+    //     } else {
+    //         preview.src = "";
+    //     }
+    // }
+
+
+
+
     render() {
-        const { name, email, password, confrimPassword } = this.state;
+        const { name, email, password, confrimPassword, selected, photo } = this.state;
+        console.log('photo***', photo)
         return (
             <div>
                 <AppBar position={"static"} style={{ backgroundColor: 'rgb(34, 157, 179)' }} className="AppBar">
@@ -120,6 +157,17 @@ class Signup extends Component {
                     <br />
                     <input type="text" value={confrimPassword} onChange={(e) => this.confrimPassword(e)} />
                     <br />
+                    <label className="Radio">
+                        <input type="radio" name="panel" value="Organiser" checked={selected === 'Organiser'} onChange={(e) => this.setState({ selected: e.target.value })} />
+                        Organiser
+                    </label>
+                    <label className="Radio">
+                        <input type="radio" name="panel" value="Attendee" checked={selected === 'Attendee'} onChange={(e) => this.setState({ selected: e.target.value })} />
+                        Attendee
+                    </label>
+                    <br />
+                    {/* <input type="file" onChange={this.handleFileUpload} />
+                    <br /> */}
                     <Button style={{ color: 'rgb(34, 157, 179)' }} onClick={this.signup.bind(this)}>Sign up</Button>
                     <br />
                     <span style={{ color: 'rgb(1, 26, 26)', fontWeight: 'bold' }}>Already signup? <Link style={{ color: 'rgb(34, 157, 179)', fontWeight: 'bold' }} to="/">Login</Link></span>

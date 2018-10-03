@@ -36,7 +36,22 @@
 .Authentication input:focus{
   background-color: rgb(233, 239, 241);
 }
+.Authentication textarea{
+  transition: 1s;
+  border: 2px solid lightblue;
+  border-radius: 5px;
+  margin: 3px auto 10px auto;
+  padding-left: 8px;
+  width: 320px;
+  height: 80px;
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(1, 26, 26);
+}
+.Authentication textarea:focus{
+  background-color: rgb(233, 239, 241);
 
+}
 .Authentication button{
   transition: 1s;
   width: 320px;
@@ -54,6 +69,10 @@
     transition: 1s;
     width: 40%;
   }
+  .Authentication textarea{
+    transition: 1s;
+    width: 40%;
+  }
   .Authentication button{
     transition: 1s;
     width: 40%;  
@@ -64,6 +83,10 @@
 @media screen and (max-width: 900px){
                 
   .Authentication input{
+    transition: 1s;
+    width: 50%;
+  }
+  .Authentication textarea{
     transition: 1s;
     width: 50%;
   }
@@ -79,6 +102,10 @@
     transition: 1s;
     width: 60%;
   }
+  .Authentication textarea{
+    transition: 1s;
+    width: 60%;
+  }
   .Authentication button{
     transition: 1s;
     width: 60%; 
@@ -88,6 +115,10 @@
 @media screen and (max-width: 600px){
                 
   .Authentication input{
+    transition: 1s;
+    width: 70%;
+  }
+  .Authentication textarea{
     transition: 1s;
     width: 70%;
   }
@@ -103,8 +134,71 @@
     transition: 1s;
     width: 80%;
   }
+  .Authentication textarea{
+    transition: 1s;
+    width: 80%;
+  }
   .Authentication button{
     transition: 1s;
     width: 80%;  
   }
+}
+.Radio{
+  margin-left: 0px;
+  text-align: start;
+  cursor: pointer;
+  
+}
+.Radio input{
+  width: 20px;
+  height: 20px;
+  margin-left: 20px;
+  margin-right: 10px;
+}
+
+.HomeBar{
+  height: 80px;
+
+}
+.MainDiv {
+  height: 80px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center
+}
+.image{
+  width: 20%;
+  text-align: start;
+  float: left;
+}
+.HomeBar img{
+  width: 60px;
+  height: 60px;
+  padding-left: 15px;
+  border-radius: 60px;
+}
+.Heading{
+  text-align: center;
+  width: 60%;
+  font-size: 30px;
+  /* font-family: 'Courier New', Courier, monospace; */
+  font-weight: bold;
+}
+.Button{
+  width: 20%;
+  text-align: end;
+}
+
+/* Organizer Work */
+
+.IconButton{
+  background-color: wheat;
+  float: right;
+}
+.OrgHeading{
+  width: 80%;
+  font-size: 24px;
+  text-align: center;
+  padding-left: 10px;
+  margin-left: 42.5%;
 }
