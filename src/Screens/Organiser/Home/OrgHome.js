@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon } from '@material-ui/core';
+import swal from 'sweetalert2';
 import '../../../App.css';
 import MediaCard from '../EventCards/EventCards';
 import firebase from 'firebase';
@@ -33,6 +34,15 @@ class OrgHome extends Component {
             this.setState({ list })
         })
     }
+    componentDidMount() {
+        const { list } = this.state;
+        list.length &&
+            swal({
+                timer: 10,
+                showConfirmButton: false
+            })
+    }
+
     render() {
         const { addForm, list } = this.state;
         console.log('List**', list)

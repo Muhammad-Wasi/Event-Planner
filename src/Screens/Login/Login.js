@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
 import firebase from 'firebase';
-import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+// import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import { AppBar, Button } from '@material-ui/core';
 import swal from 'sweetalert2';
 import '../../App.css';
 import { Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { changeState } from '../../Store/Action/action';
+// import { connect } from 'react-redux';
+// import { changeState } from '../../Store/Action/action';
 
 class Login extends Component {
     constructor(props) {
@@ -37,36 +37,54 @@ class Login extends Component {
 
     login() {
         const { email, password } = this.state;
-        // console.log(email, password);
         let that = this;
+
         if (email && password) {
             swal.showLoading();
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then(() => {
                     const userUID = firebase.auth().currentUser.uid;
                     localStorage.setItem('UserUID', userUID);
-                    localStorage.setItem('User', true)
-                    swal({
-                        title: "success",
-                        text: "Login Successful",
-                        type: 'success',
-                        showConfirmButton: false,
-                        timer: 1500,
+                    firebase.database().ref('Users/' + userUID + '/').on("child_added", data => {
+                        console.log('DataKey', data.key)
+                        console.log('DataVal', data.val())
+                        const dataObj = data.val()
+                        const userDataObj = {
+                            name: dataObj.name,
+                            email: dataObj.email,
+                            userUID: userUID,
+                            selected: dataObj.selected
+                        }
+                        console.log('UserUID', userUID)
+                        localStorage.setItem('SignupData', JSON.stringify(userDataObj));
+
                     })
-                    setTimeout(() => {
-                        that.props.history.push('/home')
-                    }, 1500);
+                        .then(() => {
+                            localStorage.setItem('User', true)
+                            swal({
+                                title: "success",
+                                text: "Login Successful",
+                                type: 'success',
+                                showConfirmButton: false,
+                                timer: 1500,
+                            })
+                            setTimeout(() => {
+                                that.props.history.push('/home')
+                            }, 1500);
+                        })
+
                     // this.props.changeStateToReducer(userDataObj);
                     // console.log('Success', success)
                 })
                 .catch(error => {
-                    console.log('Error in login', error.message);
+                    // console.log('Error in login', error.message);
                     var credential = firebase.auth.EmailAuthProvider.credential(email, password);
                     // console.log('credential', credential)
                     firebase.auth().currentUser.linkAndRetrieveDataWithCredential(credential)
                         .then(function (usercred) {
                             var user = usercred.user;
-                            console.log("Account linking success", user);
+                            localStorage.setItem('UserUID', user.uid);
+                            // console.log("Account linking success", user);
                             localStorage.setItem('User', true)
                             swal({
                                 title: "success",
@@ -85,7 +103,7 @@ class Login extends Component {
                             // Sign in user with another account
                             firebase.auth().signInWithCredential(credential).then(function (user) {
                                 console.log("Sign In Success", user);
-                                var currentUser = user;
+                                // var currentUser = user;
                                 localStorage.setItem('User', true);
                                 swal({
                                     title: "success",
@@ -97,9 +115,6 @@ class Login extends Component {
                                 setTimeout(() => {
                                     that.props.history.push('/home')
                                 }, 1500);
-                                // Merge prevUser and currentUser data stored in Firebase.
-                                // Note: How you handle this is specific to your application
-
                                 // After data is migrated delete the duplicate user
                                 return user.delete().then(function () {
                                     // Link the OAuth Credential to original account
@@ -116,16 +131,18 @@ class Login extends Component {
                                     type: 'error'
                                 })
 
-                            });
+                            })
+                        })
+                        .catch(function (error) {
+                            console.log("Sign In Error", error);
+                            swal({
+                                title: "error",
+                                text: error.message,
+                                type: 'error'
+                            })
+
                         });
-                })
-            // .catch((error) => {
-            //     swal({
-            //         title: "error",
-            //         text: error.message,
-            //         type: 'error'
-            //     })
-            // })
+                });
         }
         else {
             swal({
@@ -156,6 +173,7 @@ class Login extends Component {
                         var token = result.credential.accessToken;
                         console.log('token', token);
                         var user = result.user;
+                        localStorage.setItem('UserUID', user.uid);
                         // Get reference to the currently signed-in user
                         var prevUser = firebase.auth().currentUser;
                         // Sign in user with another account
@@ -191,19 +209,37 @@ class Login extends Component {
                             userUID: user.uid,
                             photo: user.photoURL
                         }
-                        localStorage.setItem('User', true)
-                        // localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
-                        swal({
-                            title: "success",
-                            text: "Login Successful",
-                            type: 'success',
-                            showConfirmButton: false,
-                            timer: 1500,
+                        console.log('UserUID', user.uid)
+                        localStorage.setItem('SignupData', JSON.stringify(userDataObj));
+
+                        firebase.database().ref('Users/').once('value', (snapshot) => {
+                            console.log('snapshot.key', snapshot.key)
+                            console.log('snapShot.val', snapshot.val());
+                            if (!snapshot.val()[user.uid]) {
+                                console.log('Nahi Hai****')
+                                swal({
+                                    timer: 10,
+                                    showConfirmButton: false
+                                })
+                                that.props.history.push('/roll');
+                            }
+                            else {
+                                console.log('Hai****')
+                                localStorage.setItem('User', true);
+                                swal({
+                                    title: "success",
+                                    text: "Login Successful",
+                                    type: 'success',
+                                    showConfirmButton: false,
+                                    timer: 1500,
+                                })
+                                setTimeout(() => {
+                                    that.props.history.push('/home')
+                                }, 1500)
+                                console.log('user', user)
+                            }
                         })
-                        setTimeout(() => {
-                            that.props.history.push('/home')
-                        }, 1500)
-                        console.log('user', user)
+
                     });
 
             })
@@ -227,36 +263,40 @@ class Login extends Component {
                 // console.log('token', token);
                 var user = result.user;
                 console.log('user.uid', user.uid)
-                // firebase.database().ref('Users/').on('child_added', (snapshot) => {
-                //     console.log('snapshot.key', snapshot.key)
-                //     var snap = snapshot.val();
-                //     var snapkey = snapshot.key;
-                //     console.log('obj', snap.snapkey);
-                // if (snapshot.key === user.uid) {
-                //     alert('Done')
-                // }
-                // else {
-                //     alert('Not Done')
-                // }
-                // })
-
                 const userDataObj = {
+                    name: user.displayName,
                     email: user.email,
-                    userUID: user.uid
+                    userUID: user.uid,
+                    photo: user.photoURL
                 }
-                // localStorage.setItem('UserDataObj', JSON.stringify(userDataObj));
-                localStorage.setItem('User', true)
-                swal({
-                    title: "success",
-                    text: "Login Successful",
-                    type: 'success',
-                    showConfirmButton: false,
-                    timer: 1500,
+                localStorage.setItem('SignupData', JSON.stringify(userDataObj));
+                firebase.database().ref('Users/').once('value', (snapshot) => {
+                    console.log('snapshot.key', snapshot.key)
+                    console.log('snapShot.val', snapshot.val());
+                    if (!snapshot.val()[user.uid]) {
+                        console.log('Nahi Hai****')
+                        swal({
+                            timer: 10,
+                            showConfirmButton: false
+                        })
+                        that.props.history.push('/roll');
+                    }
+                    else {
+                        console.log('Hai****')
+                        localStorage.setItem('User', true);
+                        swal({
+                            title: "success",
+                            text: "Login Successful",
+                            type: 'success',
+                            showConfirmButton: false,
+                            timer: 1500,
+                        })
+                        setTimeout(() => {
+                            that.props.history.push('/home')
+                        }, 1500)
+                        console.log('user', user)
+                    }
                 })
-                setTimeout(() => {
-                    this.props.history.push('/home')
-                }, 1500)
-                console.log('user', user)
             })
             .catch(function (error) {
                 var errorMessage = error.message;

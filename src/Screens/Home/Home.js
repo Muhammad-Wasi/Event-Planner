@@ -18,6 +18,8 @@ class Home extends Component {
 
     }
     componentWillMount() {
+        const userDataObj = JSON.parse(localStorage.getItem('SignupData'));
+        this.setState({ userDataObj })
         const user = localStorage.getItem('User');
         // this.props.changeStateToReducer(userDataObj);
         !user && this.props.history.push('/')
@@ -25,7 +27,9 @@ class Home extends Component {
     }
 
     componentDidMount() {
-        var userUID = localStorage.getItem('UserUID');
+        // const userDataObj = JSON.parse(localStorage.getItem('SignupData'));
+        // this.setState({ userDataObj })
+        const userUID = localStorage.getItem('UserUID')
         console.log('userUID', userUID)
         var select = localStorage.getItem("selected");
         console.log('select', select, !!select)
@@ -40,6 +44,8 @@ class Home extends Component {
             firebase.database().ref('Users/' + userUID + '/').on('child_added', (snapshot) => {
                 console.log('snapshot.key', snapshot.key);
                 console.log('snapshot.val()', snapshot.val())
+                const userDataObj = localStorage.setItem('SignupData', JSON.stringify(snapshot.val()));
+                this.setState({ userDataObj })
                 localStorage.setItem("selected", snapshot.val().selected)
                 this.setState({ selected: snapshot.val().selected })
                 swal({
@@ -60,25 +66,21 @@ class Home extends Component {
 
     render() {
         const { userDataObj, selected } = this.state;
+        console.log(userDataObj)
         return (
             <div>
 
                 <AppBar position="static" className="HomeBar" style={{ backgroundColor: "rgb(34, 157, 179)", height: '80px' }}>
                     <div className="MainDiv">
-                        {/* {userDataObj &&
-                            userDataObj.photo && */}
                         <div className="image">
-                            <img alt="User Profile Picture..." src={userDataObj.photo} style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
+                            {/* {userDataObj.photo ?
+                                <img alt="User Profile Picture..." src={userDataObj.photo} style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
+                                : */}
+                            <img alt="User Profile Picture..." src="https://upload.wikimedia.org/wikipedia/en/e/ee/Unknown-person.gif" style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
+                            {/* } */}
                         </div>
-                        {/* } */}
                         <div className="Heading">
                             <span>Event</span>
-                            {/* {selected === 'Organiser' &&
-                                <span>Hello Organiser</span>
-                            }
-                            {selected === "Attendee" &&
-                                <span>Hello Attendee</span>
-                            } */}
                         </div>
                         <div className="Button">
                             <Button color={"secondary"} style={{ backgroundColor: 'white', width: '80px', float: "right", marginRight: '7px' }} onClick={this.logout.bind(this)} >LogOut</Button>
@@ -86,12 +88,10 @@ class Home extends Component {
                     </div>
                 </AppBar>
                 <div>
-                    {/* {selected === 'Organiser' && */}
-                    {/* // <h1>Hello Organiser</h1> */}
-                    <OrgHome addform={this.addform} />
-                    {/* } */}
+                    {selected === 'Organiser' &&
+                        <OrgHome addform={this.addform} />
+                    }
                     {selected === "Attendee" &&
-                        // <h1>Hello Attendee</h1>
                         <AttHome />
                     }
                 </div>

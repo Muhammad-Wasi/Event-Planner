@@ -151,11 +151,11 @@ class Signup extends Component {
                     <br />
                     <label>Password</label>
                     <br />
-                    <input type="text" value={password} onChange={(e) => this.password(e)} />
+                    <input type="password" value={password} onChange={(e) => this.password(e)} />
                     <br />
                     <label>ConfrimPassword</label>
                     <br />
-                    <input type="text" value={confrimPassword} onChange={(e) => this.confrimPassword(e)} />
+                    <input type="password" value={confrimPassword} onChange={(e) => this.confrimPassword(e)} />
                     <br />
                     <label className="Radio">
                         <input type="radio" name="panel" value="Organiser" checked={selected === 'Organiser'} onChange={(e) => this.setState({ selected: e.target.value })} />
