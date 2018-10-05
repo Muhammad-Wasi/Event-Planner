@@ -106,32 +106,6 @@ class Signup extends Component {
         }
     }
 
-
-
-    // handleFileUpload = () => {
-    //     let that = this;
-    //     var preview = document.querySelector('img'); //selects the query named img
-    //     var file = document.querySelector('input[type=file]').files[0]; //sames as here
-    //     var reader = new FileReader();
-
-    //     reader.onloadend = function () {
-    //         let pic = { "url": "", val: "0" };
-    //         pic.url = reader.result;
-    //         console.log('pic.url', pic.url)
-    //         // this.picArray.push(pic);
-    //         that.setState({ photo: pic.url });
-    //     };
-
-    //     if (file) {
-    //         reader.readAsDataURL(file); //reads the data as a URL
-    //     } else {
-    //         preview.src = "";
-    //     }
-    // }
-
-
-
-
     render() {
         const { name, email, password, confrimPassword, selected, photo } = this.state;
         console.log('photo***', photo)
@@ -166,8 +140,6 @@ class Signup extends Component {
                         Attendee
                     </label>
                     <br />
-                    {/* <input type="file" onChange={this.handleFileUpload} />
-                    <br /> */}
                     <Button style={{ color: 'rgb(34, 157, 179)' }} onClick={this.signup.bind(this)}>Sign up</Button>
                     <br />
                     <span style={{ color: 'rgb(1, 26, 26)', fontWeight: 'bold' }}>Already signup? <Link style={{ color: 'rgb(34, 157, 179)', fontWeight: 'bold' }} to="/">Login</Link></span>

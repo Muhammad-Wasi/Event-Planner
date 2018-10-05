@@ -3,7 +3,6 @@ import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon } from '@mate
 import '../../../App.css';
 import firebase from 'firebase';
 import swal from 'sweetalert2';
-import { light } from '@material-ui/core/styles/createPalette';
 
 
 class Event extends Component {
@@ -37,7 +36,6 @@ class Event extends Component {
             let pic = { "url": "", val: "0" };
             pic.url = reader.result;
             console.log('pic.url', pic.url)
-            // this.picArray.push(pic);
             that.setState({ photo: pic.url });
         };
 
@@ -135,8 +133,6 @@ class Event extends Component {
                     <br />
                     <input type="file" style={{ paddingLeft: '0px', height: '27px' }} onChange={this.handleFileUpload} />
                     <br />
-                    {/* <img src={this.state.photo} />
-                    <br /> */}
                     <label>Location</label>
                     <br />
                     <input type="text" value={location} onChange={e => { this.setState({ location: e.target.value }) }} />

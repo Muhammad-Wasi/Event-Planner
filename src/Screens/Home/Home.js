@@ -23,7 +23,6 @@ class Home extends Component {
         const user = localStorage.getItem('User');
         // this.props.changeStateToReducer(userDataObj);
         !user && this.props.history.push('/')
-        swal.showLoading();
     }
 
     componentDidMount() {
@@ -35,10 +34,6 @@ class Home extends Component {
         console.log('select', select, !!select)
         if (select) {
             this.setState({ selected: select })
-            swal({
-                showConfirmButton: false,
-                timer: 10
-            })
         }
         else {
             firebase.database().ref('Users/' + userUID + '/').on('child_added', (snapshot) => {
@@ -48,10 +43,6 @@ class Home extends Component {
                 this.setState({ userDataObj })
                 localStorage.setItem("selected", snapshot.val().selected)
                 this.setState({ selected: snapshot.val().selected })
-                swal({
-                    showConfirmButton: false,
-                    timer: 100
-                })
             })
         }
     }

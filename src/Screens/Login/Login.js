@@ -340,12 +340,3 @@ class Login extends Component {
 }
 
 export default Login;
-// function mapDispatchToProps(dispatch) {
-//     return ({
-//         changeStateToReducer: (userDataObj) => {
-//             dispatch(changeState(userDataObj));
-//         }
-//     })
-// }
-
-// export default connect(null, mapDispatchToProps)(Login);

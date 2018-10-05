@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon } from '@material-ui/core';
 import swal from 'sweetalert2';
 import '../../../App.css';
+import { IconButton } from '@material-ui/core';
 import MediaCard from '../EventCards/EventCards';
 import firebase from 'firebase';
-import { light } from '@material-ui/core/styles/createPalette';
 
 class OrgHome extends Component {
     constructor(props) {
@@ -15,6 +14,10 @@ class OrgHome extends Component {
         }
 
         this.addForm = this.addForm.bind(this);
+    }
+
+    componentWillMount() {
+        swal.showLoading()
     }
 
     addForm() {
@@ -32,15 +35,11 @@ class OrgHome extends Component {
             }
             list.push(eventObj);
             this.setState({ list })
-        })
-    }
-    componentDidMount() {
-        const { list } = this.state;
-        list.length &&
             swal({
                 timer: 10,
                 showConfirmButton: false
             })
+        })
     }
 
     render() {
@@ -60,12 +59,13 @@ class OrgHome extends Component {
                     </div>
                 </div>
                 <div className="CardDiv">
-                    {list.length &&
+                    {list.length ?
                         list.map((item, index) => {
                             return <MediaCard eventObj={item} />
                         })
+                        :
+                        null
                     }
-                    {/* <MediaCard /> */}
 
                 </div>
 

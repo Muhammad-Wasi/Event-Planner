@@ -3,7 +3,6 @@ import { AppBar, Button } from '@material-ui/core';
 import swal from 'sweetalert2';
 import '../../App.css';
 import firebase from 'firebase';
-import { Link } from 'react-router-dom';
 
 
 class Roll extends Component {
