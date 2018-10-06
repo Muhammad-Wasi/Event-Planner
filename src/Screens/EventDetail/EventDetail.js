@@ -71,11 +71,14 @@ class EventDetail extends Component {
                         </h2>
                     </div>
                     <div style={{ width: '20%', textAlign: 'end', paddingRight: '10px' }}>
-                        <Button size="small" color="primary">
-                            <b>
-                                Buy
+                        <Link to={'/buytickets'}>
+                            <Button size="small" color="primary">
+                                <b>
+                                    Buy
                             </b>
-                        </Button>
+                            </Button>
+                        </Link>
+
                     </div>
                 </div>
                 <div className="OtherDetails">

@@ -72,9 +72,11 @@ class MediaCard extends Component {
                     <CardActions>
                         {
                             userRoll === "Attendee" ?
-                                <Button id={eventKey} size="small" color="primary">
-                                    Buy
-                                </Button>
+                                <Link to={'/buytickets'}>
+                                    <Button id={eventKey} size="small" color="primary">
+                                        Buy
+                                    </Button>
+                                </Link>
                                 :
                                 null
                         }
