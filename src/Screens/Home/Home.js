@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon } from '@material-ui/core';
+import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon, MenuItem } from '@material-ui/core';
 import '../../App.css';
 import firebase from 'firebase';
 import OrgHome from '../Organiser/Home/OrgHome';
@@ -47,7 +47,7 @@ class Home extends Component {
         }
     }
     logout() {
-        localStorage.removeItem('User');
+        localStorage.clear();
         this.props.history.push('/')
     }
 
@@ -67,8 +67,11 @@ class Home extends Component {
                             {/* {userDataObj.photo ?
                                 <img alt="User Profile Picture..." src={userDataObj.photo} style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
                                 : */}
+
                             <img alt="User Profile Picture..." src="https://upload.wikimedia.org/wikipedia/en/e/ee/Unknown-person.gif" style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
+
                             {/* } */}
+
                         </div>
                         <div className="Heading">
                             <span>Event</span>

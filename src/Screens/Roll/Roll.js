@@ -36,6 +36,7 @@ class Roll extends Component {
                     })
                     setTimeout(() => {
                         localStorage.setItem('User', true);
+                        localStorage.setItem('selected', selected);
                         this.props.history.push('/home')
                     }, 1500)
 

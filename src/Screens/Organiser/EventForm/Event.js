@@ -19,7 +19,9 @@ class Event extends Component {
             sittingDetails: '',
             seats: '',
             selected: '',
-            price: ''
+            price: '',
+            startNum: '',
+            endNum: ''
         }
 
         this.handleFileUpload = this.handleFileUpload.bind(this);
@@ -47,13 +49,14 @@ class Event extends Component {
     }
 
     submit() {
-        const { name, details, photo, location, address, startTime, endTime, sittingDetails, seats, selected, price } = this.state;
+        const { name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats, selected, price } = this.state;
         const db = firebase.database();
         const userUID = localStorage.getItem('UserUID');
         console.log(userUID)
-        if (name && details && photo && location && address && startTime && endTime && sittingDetails && seats && selected === "Paid" && price) {
+        if (name && details && photo && location && address && startTime && endTime && sittingDetails && startNum && endNum && endNum > startNum && selected === "Paid" && price) {
+            const numOfSeats = endNum - startNum;
             const eventObj = {
-                name, details, photo, location, address, startTime, endTime, sittingDetails, seats, selected, price, userUID
+                name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats: numOfSeats, selected, price, userUID
             }
             swal.showLoading();
             console.log('eventObj', eventObj);
@@ -78,9 +81,10 @@ class Event extends Component {
                     })
                 })
         }
-        else if (name && details && photo && location && address && startTime && endTime && sittingDetails && seats && selected === "Free") {
+        else if (name && details && photo && location && address && startTime && endTime && sittingDetails && startNum && endNum && endNum > startNum && selected === "Free") {
+            const numOfSeats = endNum - startNum;
             const eventObj = {
-                name, details, photo, location, address, startTime, endTime, sittingDetails, seats, selected, userUID
+                name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats: numOfSeats, selected, userUID
             }
             console.log('eventObj', eventObj);
             swal.showLoading();
@@ -106,6 +110,14 @@ class Event extends Component {
                 })
         }
         else {
+            if (startNum > endNum) {
+                swal({
+                    title: "error",
+                    text: 'Start Number Always Less Than End Number',
+                    type: 'error'
+                })
+
+            }
             swal({
                 title: "error",
                 text: 'Something Went Wrong',
@@ -115,7 +127,7 @@ class Event extends Component {
     }
 
     render() {
-        const { name, details, location, address, startTime, endTime, sittingDetails, seats, selected, price } = this.state;
+        const { name, details, location, address, startTime, endTime, sittingDetails, startNum, endNum, selected, price } = this.state;
         return (
             <div>
                 <AppBar position="static" className="HomeBar" style={{ backgroundColor: "rgb(34, 157, 179)", height: '80px', textAlign: 'center' }}>
@@ -153,9 +165,16 @@ class Event extends Component {
                     <br />
                     <textarea type="text" value={sittingDetails} onChange={e => { this.setState({ sittingDetails: e.target.value }) }} />
                     <br />
-                    <label>Number Of Seats</label>
+                    {/* <label>Number Of Seats</label>
                     <br />
                     <input type="number" value={seats} onChange={e => { this.setState({ seats: e.target.value }) }} />
+                    <br /> */}
+                    <label>Seat Number</label>
+                    <br />
+                    <input placeholder="From" className="SeatNo" type="number" value={startNum} onChange={e => { this.setState({ startNum: e.target.value }) }} />
+                    {/* <label>To</label> */}
+                    <br />
+                    <input placeholder="To" className="SeatNo" type="number" value={endNum} onChange={e => { this.setState({ endNum: e.target.value }) }} />
                     <br />
                     <label className="Radio">
                         <input type="radio" name="panel" value="Free" checked={selected === 'Free'} onChange={(e) => this.setState({ selected: e.target.value })} />

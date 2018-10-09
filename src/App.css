@@ -52,6 +52,9 @@
   background-color: rgb(233, 239, 241);
 
 }
+/* .SeatNo{
+  width: 150px;
+} */
 .Authentication button{
   transition: 1s;
   width: 320px;
@@ -73,6 +76,10 @@
     transition: 1s;
     width: 40%;
   }
+  /* .SeatNo{
+    transition: 1s;
+    width: 17%;
+  } */
   .Authentication button{
     transition: 1s;
     width: 40%;  
@@ -90,6 +97,10 @@
     transition: 1s;
     width: 50%;
   }
+  /* .SeatNo{
+    transition: 1s;
+    width: 23%;
+  } */
   .Authentication button{
     transition: 1s;
     width: 50%;
@@ -266,7 +277,8 @@
 .EventDetailDiv h4{
   margin: 5px auto;
   padding: 0px 8px;
-  color: rgb(19, 71, 71)
+  color: rgb(19, 71, 71);
+  /* background-color: rgb(9, 104, 104) */
 
 }
 .EventDetailDiv p{
@@ -280,3 +292,17 @@
   text-align: center;
 
 }
+
+/* select{
+  text-align: center;
+  transition: 1s;
+  border: 1px solid lightblue;
+  border-radius: 5px;
+  margin: 3px auto 10px auto;
+  padding-left: 8px;
+  width: 320px;
+  height: 25px;
+  font-size: 18px;
+  font-weight: bold;
+  color: rgb(2, 49, 49);
+} */

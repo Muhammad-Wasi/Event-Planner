@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Children } from 'react';
 import firebase from 'firebase';
 // import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import { AppBar, Button } from '@material-ui/core';
@@ -116,20 +116,24 @@ class Login extends Component {
                                     that.props.history.push('/home')
                                 }, 1500);
                                 // After data is migrated delete the duplicate user
-                                return user.delete().then(function () {
-                                    // Link the OAuth Credential to original account
-                                    return prevUser.linkWithCredential(credential);
-                                }).then(function () {
-                                    // Sign in with the newly linked credential
-                                    return firebase.auth.signInWithCredential(credential);
-                                });
+
+                                // return user.delete().then(function () {
+
+                                // Link the OAuth Credential to original account
+
+                                return prevUser.linkWithCredential(credential)
+                                    // })
+                                    .then(function () {
+                                        // Sign in with the newly linked credential
+                                        return firebase.auth.signInWithCredential(credential);
+                                    });
                             }).catch(function (error) {
                                 console.log("Sign In Error", error);
-                                swal({
-                                    title: "error",
-                                    text: error.message,
-                                    type: 'error'
-                                })
+                                // swal({
+                                //     title: "error",
+                                //     text: error.message,
+                                //     type: 'error'
+                                // })
 
                             })
                         })
@@ -184,13 +188,16 @@ class Login extends Component {
                             // Note: How you handle this is specific to your application
 
                             // After data is migrated delete the duplicate user
-                            return user.delete().then(function () {
-                                // Link the OAuth Credential to original account
-                                return prevUser.linkWithCredential(credential);
-                            }).then(function () {
-                                // Sign in with the newly linked credential
-                                return firebase.auth().signInWithCredential(credential);
-                            });
+
+                            // return user.delete().then(function () {
+
+                            // Link the OAuth Credential to original account
+                            return prevUser.linkWithCredential(credential)
+                                // })
+                                .then(function () {
+                                    // Sign in with the newly linked credential
+                                    return firebase.auth().signInWithCredential(credential);
+                                });
                         }).catch(function (error) {
                             console.log("Sign In Error", error);
                             swal({
@@ -215,7 +222,15 @@ class Login extends Component {
                         firebase.database().ref('Users/').once('value', (snapshot) => {
                             console.log('snapshot.key', snapshot.key)
                             console.log('snapShot.val', snapshot.val());
-                            if (!snapshot.val()[user.uid]) {
+                            if (snapshot.val() == null) {
+                                swal({
+                                    timer: 10,
+                                    showConfirmButton: false
+                                })
+                                that.props.history.push('/roll');
+
+                            }
+                            else if (!snapshot.val()[user.uid]) {
                                 console.log('Nahi Hai****')
                                 swal({
                                     timer: 10,
@@ -233,10 +248,13 @@ class Login extends Component {
                                     showConfirmButton: false,
                                     timer: 1500,
                                 })
-                                setTimeout(() => {
-                                    that.props.history.push('/home')
-                                }, 1500)
-                                console.log('user', user)
+                                firebase.database().ref('Users/' + user.uid + '/').on('child_added', snaVal => {
+                                    localStorage.setItem('selected', snaVal.val().selected);
+                                    setTimeout(() => {
+                                        that.props.history.push('/home')
+                                    }, 1500)
+                                    console.log('user', user)
+                                })
                             }
                         })
 
@@ -291,10 +309,13 @@ class Login extends Component {
                             showConfirmButton: false,
                             timer: 1500,
                         })
-                        setTimeout(() => {
-                            that.props.history.push('/home')
-                        }, 1500)
-                        console.log('user', user)
+                        firebase.database().ref('Users/' + user.uid + '/').on('child_added', snaVal => {
+                            localStorage.setItem('selected', snaVal.val().selected);
+                            setTimeout(() => {
+                                that.props.history.push('/home')
+                            }, 1500)
+                            console.log('user', user)
+                        })
                     }
                 })
             })

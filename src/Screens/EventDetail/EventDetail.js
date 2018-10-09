@@ -10,13 +10,15 @@ class EventDetail extends Component {
         super(props);
         this.state = {
             eventKey: '',
-            eventObj: {}
+            eventObj: {},
+            userRoll: ''
         }
 
     }
     componentWillMount() {
         const eventKey = localStorage.getItem('CardID');
-        this.setState({ eventKey })
+        const userRoll = localStorage.getItem('selected');
+        this.setState({ eventKey, userRoll })
         swal.showLoading();
     }
     componentDidMount() {
@@ -32,12 +34,12 @@ class EventDetail extends Component {
         })
     }
     logout() {
-        localStorage.removeItem('User');
+        localStorage.clear();
         this.props.history.push('/')
     }
 
     render() {
-        const { eventObj } = this.state;
+        const { eventObj, userRoll } = this.state;
         return (
             <div className="detail">
                 <AppBar position="static" className="HomeBar" style={{ backgroundColor: "rgb(34, 157, 179)", height: '80px' }}>
@@ -60,7 +62,7 @@ class EventDetail extends Component {
                 <div className="EventName">
                     <div style={{ width: '20%', paddingLeft: '10px' }}>
                         <Link to={'/home'}>
-                            <Button size="small" color="primary">
+                            <Button variant="outlined" size="small" color="primary">
                                 <b>Back</b>
                             </Button>
                         </Link>
@@ -71,14 +73,18 @@ class EventDetail extends Component {
                         </h2>
                     </div>
                     <div style={{ width: '20%', textAlign: 'end', paddingRight: '10px' }}>
-                        <Link to={'/buytickets'}>
-                            <Button size="small" color="primary">
-                                <b>
-                                    Buy
-                            </b>
-                            </Button>
-                        </Link>
-
+                        {
+                            userRoll === 'Attendee' ?
+                                <Link to={'/buytickets'}>
+                                    <Button variant="outlined" size="small" color="primary">
+                                        <b>
+                                            Buy
+                                        </b>
+                                    </Button>
+                                </Link>
+                                :
+                                null
+                        }
                     </div>
                 </div>
                 <div className="OtherDetails">
