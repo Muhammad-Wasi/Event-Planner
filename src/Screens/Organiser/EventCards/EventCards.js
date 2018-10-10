@@ -27,19 +27,49 @@ class MediaCard extends Component {
         super(props);
         this.state = {
             userRoll: '',
-            interested: props.interested,
-            key: props.eventObj.eventKey,
-            going: false
+            eventKey: props.eventObj.eventKey,
+            going: [],
+            notgoing: [],
+            soldAllTickets: [],
+            bookSeats: []
         }
         this.detail = this.detail.bind(this);
-        this.interested = this.interested.bind(this);
+        this.going = this.going.bind(this);
+        this.notGoing = this.notGoing.bind(this);
+        this.removegoing = this.removegoing.bind(this);
+        this.removenotGoing = this.removenotGoing.bind(this);
+
+
 
     }
 
-    interested(key) {
-        console.log('ID***', key)
-        const userUID = localStorage.getItem('UserUID');
-        firebase.database().ref('UserTimeline/' + userUID + '/Interested/' + key + '/').push(true)
+    going(key) {
+        const { userUID } = this.state;
+        console.log('going***', key)
+        firebase.database().ref('UserTimeline/' + userUID + '/' + key + '/').set('Going')
+    }
+
+
+    notGoing(key) {
+        const { userUID } = this.state;
+        console.log('notGoing***', key)
+        firebase.database().ref('UserTimeline/' + userUID + '/' + key + '/').set('NotGoing')
+    }
+
+    removegoing(key) {
+        const { userUID, going } = this.state;
+        firebase.database().ref('UserTimeline/' + userUID + '/' + key + '/').remove()
+        const index = going.indexOf(key)
+        going.splice(index, 1)
+        this.setState({ going })
+    }
+
+    removenotGoing(key) {
+        const { userUID, notgoing } = this.state;
+        firebase.database().ref('UserTimeline/' + userUID + '/' + key + '/').remove()
+        const index = notgoing.indexOf(key)
+        notgoing.splice(index, 1)
+        this.setState({ notgoing })
     }
 
     detail(id) {
@@ -47,24 +77,63 @@ class MediaCard extends Component {
     }
 
     componentWillMount() {
+        const userUID = localStorage.getItem('UserUID');
         const userRoll = localStorage.getItem('selected');
-        this.setState({ userRoll })
+        this.setState({ userRoll, userUID })
     }
 
     componentDidMount() {
-        const { key, interested } = this.state;
-        console.log("**************", interested)
-        // interested.map((item) => {
-        //     return console.log('Match*************', item)
-        // })
+        const { userUID, going, notgoing, eventKey, bookSeats, soldAllTickets } = this.state;
+        firebase.database().ref('UserTimeline/' + userUID + '/').on('child_added', snapshot => {
+            console.log('SNapshot', snapshot)
+            console.log('Val***', snapshot.val())
+            console.log('Key***', snapshot.key)
+            if (snapshot.val() === 'Going') {
+                going.push(snapshot.key)
+                this.setState({ going })
+            }
+            else if (snapshot.val() === 'NotGoing') {
+                notgoing.push(snapshot.key)
+                this.setState({ notgoing })
+            }
+        })
+
+
+        firebase.database().ref('Events/' + eventKey + '/').on('value', snapshot => {
+            if (snapshot.val().BookedSeats) {
+                const findBookedSeatsArr = Object.values(snapshot.val().BookedSeats);
+                bookSeats.splice(0);
+                this.setState({ bookSeats })
+                for (var key in findBookedSeatsArr) {
+                    const val = Object.values(Object.values(findBookedSeatsArr[key]))
+                    for (var i = 0; i < val.length; i++) {
+                        console.log('VAl***', val[i])
+                        bookSeats.push(...val[i])
+                    }
+                }
+            }
+
+            const firstNum = Number(snapshot.val().startNum);
+            const lastNum = Number(snapshot.val().endNum);
+            console.log('******', lastNum - firstNum + 1, bookSeats, bookSeats.length)
+            if (lastNum - firstNum + 1 == bookSeats.length) {
+                console.log('bookSeats***', eventKey)
+                soldAllTickets.push(eventKey);
+                this.setState({ soldAllTickets })
+            }
+        })
+
+
+
     }
     render() {
         console.log('MediaCard***', this.props.eventObj)
-        const { userRoll } = this.state;
+        const { userRoll, going, notgoing, soldAllTickets } = this.state;
         const { eventObj } = this.props;
         const eventKey = eventObj.eventKey;
         const obj = eventObj.eventDetail
-        const { going } = this.state;
+        console.log('Going', going);
+        console.log('NotGoing', notgoing);
         return (
             <div className="Cards">
                 <Card className={'CardBorder MediaCard-card-79'}>
@@ -72,48 +141,73 @@ class MediaCard extends Component {
                         <CardMedia
                             className={'MediaCard-media-80'}
                             style={{ height: '0px' }}
+                            // image={obj.photo}
                             title="Event Picture"
                         />
-                        <div >
-                            <img title="Event Picture" src={obj.photo} style={{ width: '100%', height: '100%' }} />
+                        <div style={{ position: "relative" }}>
+                            <img title="Event Picture" src={obj.photo} style={{ width: '100%', height: '70%' }} />
+                            <div style={{ position: "absolute", top: '8px', left: '10px', color: 'white', fontSize: '16px' }}>
+                                {
+                                    obj.selected === 'Paid' ?
+                                        <span><b>Ticket:</b> Rs{obj.price}</span>
+                                        :
+                                        <span><b>Ticket:</b> Free</span>
+                                }
+                            </div>
                         </div>
                         <CardContent>
-                            <Typography gutterBottom variant="headline" component="h2">
+                            <Typography style={{ textAlign: 'center' }} gutterBottom variant="headline" component="h2">
                                 {obj.name}
-                                {
-                                    userRoll === "Attendee" ?
-                                        <span style={{ float: 'right' }}>
-                                            {/* {
-                                                interested.map((item) => {
-                                                    return <span> */}
-                                            {/* {
-                                                going ?
-                                                    <span>Interested</span>
-                                                    :
-                                                    <svg onClick={() => this.interested(eventKey)} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" /></svg>
-                                            } */}
-                                            {/* </span>
-                                                })
-                                            } */}
-                                        </span>
-
-                                        :
-                                        null
-                                }
                             </Typography>
                             <Typography component="p">
-                                {obj.details}
+                                <div style={{ width: '55%', float: "left", height: '100px', overflow: 'hidden' }}>
+                                    {obj.details}
+                                </div>
+                                <div style={{ width: '45%', float: "left" }}>
+                                    {
+                                        userRoll === "Attendee" ?
+                                            <span style={{ float: 'right' }}>
+                                                {
+                                                    going.indexOf(eventKey) === -1 && notgoing.indexOf(eventKey) === -1 ?
+                                                        <span>
+                                                            <Button style={{ margin: '5px' }} size="small" variant="outlined" color={"primary"} onClick={() => this.notGoing(eventKey)}>Not Going</Button>
+                                                            <br />
+                                                            <Button style={{ marginLeft: '18px' }} size="small" variant="outlined" color={"primary"} onClick={() => this.going(eventKey)}>Going</Button>
+                                                        </span>
+                                                        :
+                                                        <span>
+                                                            {
+                                                                notgoing.indexOf(eventKey) !== -1 ?
+                                                                    <Button size="small" variant="outlined" color={"secondary"} onClick={() => this.removenotGoing(eventKey)}>Not Going</Button>
+                                                                    :
+                                                                    <Button size="small" variant="outlined" style={{ color: '#a6e22e' }} onClick={() => this.removegoing(eventKey)}>Going</Button>
+                                                            }
+                                                        </span>
+                                                }
+                                            </span>
+
+                                            :
+                                            null
+                                    }
+                                </div>
                             </Typography>
                         </CardContent>
                     </CardActionArea>
-                    <CardActions>
+                    <CardActions style={{ margin: '0px auto' }}>
                         {
                             userRoll === "Attendee" ?
-                                <Link to={'/buytickets'}>
-                                    <Button variant="outlined" id={eventKey} size="small" color="primary" onClick={() => {localStorage.setItem('CardID', eventKey)}}>
-                                        Buy
+                                <span>
+                                    {
+                                        soldAllTickets.indexOf(eventKey) !== -1 ?
+                                            <Button variant="outlined" disabled>Sold</Button>
+                                            :
+                                            <Link to={'/buytickets'}>
+                                                <Button variant="outlined" id={eventKey} size="small" color="primary" onClick={() => { localStorage.setItem('CardID', eventKey) }}>
+                                                    Buy
                                                 </Button>
-                                </Link>
+                                            </Link>
+                                    }
+                                </span>
                                 :
                                 null
                         }
@@ -122,12 +216,12 @@ class MediaCard extends Component {
                                 Learn More
                             </Button>
                         </Link>
-                        {
+                        {/* {
                             obj.selected === 'Paid' ?
-                                <span><b>Ticket:</b> Rs{obj.price}</span>
+                                <span>Rs{obj.price}/Ticket</span>
                                 :
-                                <span><b>Ticket:</b> Free</span>
-                        }
+                                <span>Free</span>
+                        } */}
                     </CardActions>
                 </Card>
             </div>

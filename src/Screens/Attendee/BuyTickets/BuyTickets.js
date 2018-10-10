@@ -54,7 +54,7 @@ class BuyTickets extends Component {
             const lastNum = Number(snapshot.val().endNum);
             if (snapshot.val().startNum) {
                 for (var i = firstNum; i <= lastNum; i++) {
-                    if (list.length != lastNum - firstNum) {
+                    if (list.length != (lastNum - firstNum) + 1) {
                         list.push(i)
                         this.setState({ list })
                     }

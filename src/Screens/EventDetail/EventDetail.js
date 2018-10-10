@@ -11,7 +11,9 @@ class EventDetail extends Component {
         this.state = {
             eventKey: '',
             eventObj: {},
-            userRoll: ''
+            userRoll: '',
+            bookSeats: [],
+            soldAllTickets: []
         }
 
     }
@@ -22,7 +24,7 @@ class EventDetail extends Component {
         swal.showLoading();
     }
     componentDidMount() {
-        const { eventKey } = this.state;
+        const { eventKey, bookSeats, soldAllTickets } = this.state;
         console.log('eventKey****', eventKey)
         firebase.database().ref('Events/' + eventKey + '/').once('value', snapshot => {
             console.log('snapshot.val()', snapshot.val())
@@ -31,7 +33,32 @@ class EventDetail extends Component {
                 timer: 10,
                 showConfirmButton: false
             })
+            // })
+
+            // firebase.database().ref('Events/' + eventKey + '/').on('value', snapshot => {
+            if (snapshot.val().BookedSeats) {
+                const findBookedSeatsArr = Object.values(snapshot.val().BookedSeats);
+                bookSeats.splice(0);
+                this.setState({ bookSeats })
+                for (var key in findBookedSeatsArr) {
+                    const val = Object.values(Object.values(findBookedSeatsArr[key]))
+                    for (var i = 0; i < val.length; i++) {
+                        console.log('VAl***', val[i])
+                        bookSeats.push(...val[i])
+                    }
+                }
+            }
+
+            const firstNum = Number(snapshot.val().startNum);
+            const lastNum = Number(snapshot.val().endNum);
+            console.log('******', lastNum - firstNum + 1, bookSeats, bookSeats.length)
+            if (lastNum - firstNum + 1 == bookSeats.length) {
+                console.log('bookSeats***', eventKey)
+                soldAllTickets.push(eventKey);
+                this.setState({ soldAllTickets })
+            }
         })
+
     }
     logout() {
         localStorage.clear();
@@ -39,7 +66,7 @@ class EventDetail extends Component {
     }
 
     render() {
-        const { eventObj, userRoll } = this.state;
+        const { eventObj, userRoll, soldAllTickets, eventKey } = this.state;
         return (
             <div className="detail">
                 <AppBar position="static" className="HomeBar" style={{ backgroundColor: "rgb(34, 157, 179)", height: '80px' }}>
@@ -75,13 +102,18 @@ class EventDetail extends Component {
                     <div style={{ width: '20%', textAlign: 'end', paddingRight: '10px' }}>
                         {
                             userRoll === 'Attendee' ?
-                                <Link to={'/buytickets'}>
-                                    <Button variant="outlined" size="small" color="primary">
-                                        <b>
-                                            Buy
-                                        </b>
-                                    </Button>
-                                </Link>
+                                <span>
+                                    {
+                                        soldAllTickets.indexOf(eventKey) !== -1 ?
+                                            <Button variant="outlined" disabled>Sold</Button>
+                                            :
+                                            <Link to={'/buytickets'}>
+                                                <Button variant="outlined" id={eventKey} size="small" color="primary" onClick={() => { localStorage.setItem('CardID', eventKey) }}>
+                                                    Buy
+                                        </Button>
+                                            </Link>
+                                    }
+                                </span>
                                 :
                                 null
                         }

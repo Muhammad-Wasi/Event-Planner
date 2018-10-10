@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
+import { Button, Select, MenuItem } from '@material-ui/core';
 import '../../../App.css';
 import swal from 'sweetalert2';
 import MediaCard from '../../Organiser/EventCards/EventCards';
@@ -9,8 +11,11 @@ class AttHome extends Component {
         super(props);
         this.state = {
             list: [],
-            interested: []
+            select: '',
+            timeline: [],
         }
+
+        this.handle = this.handle.bind(this);
     }
 
     componentWillMount() {
@@ -18,7 +23,9 @@ class AttHome extends Component {
     }
 
     componentDidMount() {
-        const { list, interested } = this.state;
+        const { list } = this.state;
+        const userUID = localStorage.getItem('UserUID')
+        this.setState({ userUID })
         firebase.database().ref('Events/').on('child_added', snapshot => {
             console.log('OrgHome****', snapshot.key);
             console.log('OrgHome****', snapshot.val());
@@ -33,32 +40,99 @@ class AttHome extends Component {
                 showConfirmButton: false
             })
         })
+    }
 
-        const userUID = localStorage.getItem('UserUID');
-        firebase.database().ref('UserTimeline/' + userUID + '/Interested/').on('child_added', snapKey => {
-            console.log('InterestedKeys****', snapKey.key)
-            interested.push(snapKey.key)
-            this.setState({ interested })
+    handle(e) {
+        const { timeline, select, userUID, list } = this.state;
+        console.log('Select Value**', e.target.value)
+        this.setState({ select: e.target.value })
+        timeline.splice(0)
+        this.setState({ timeline })
+
+        firebase.database().ref('UserTimeline/' + userUID + '/').on('child_added', snapshot => {
+            console.log('SNapshot', snapshot)
+            console.log('Val***', snapshot.val())
+            console.log('Key***', snapshot.key)
+            list.map(item => {
+                // console.log('select***', e.target.value)
+                if (snapshot.val() === e.target.value && item.eventKey === snapshot.key) {
+                    console.log(snapshot.val(), item)
+                    timeline.push(item)
+                    this.setState({ timeline })
+                }
+
+            })
         })
     }
 
+
     render() {
-        const { list, interested } = this.state;
-        console.log('List**', list)
-        console.log('Hello****')
+        const { list, select, timeline } = this.state;
+        console.log('timeline**', timeline)
         return (
             <div className="AttHome">
-                <div className="CardDiv">
-                    {list.length ?
-                        list.map((item, index) => {
-                            return <MediaCard interested={interested} eventObj={item} />
-                        })
-                        :
-                        null
-                    }
 
+
+                <div className="EventName">
+                    <div style={{ width: '20%', paddingLeft: '10px' }}>
+                        {
+                            select ?
+                                <Link to={'/home'}>
+                                    <Button variant="outlined" size="small" color="primary">
+                                        <b>Home</b>
+                                    </Button>
+                                </Link>
+                                :
+                                null
+                        }
+                    </div>
+                    <div style={{ width: '60%', textAlign: 'center' }}>
+                        <h2 style={{ color: "rgb(34, 157, 179)" }}>
+                            All Events
+                        </h2>
+                    </div>
+                    <div style={{ width: '20%', textAlign: 'end', paddingRight: '10px' }}>
+                        <Select
+                            value={select}
+                            onChange={this.handle}
+                            displayEmpty
+                            name="age"
+                            style={{ margin: '25px 5px', width: '70px' }}
+                        >
+                            <MenuItem value=''>
+                                <em>None</em>
+                            </MenuItem>
+                            <MenuItem value='Going'>Going</MenuItem>
+                            <MenuItem value='NotGoing'>Not Going</MenuItem>
+                        </Select>
+                    </div>
                 </div>
-            </div>
+
+                {
+                    select ?
+                        <div className="CardDiv">
+                            {timeline.length ?
+                                timeline.map((item, index) => {
+                                    return <MediaCard eventObj={item} />
+                                })
+                                :
+                                null
+                            }
+                        </div>
+                        :
+                        <div className="CardDiv">
+                            {list.length ?
+                                list.map((item, index) => {
+                                    return <MediaCard eventObj={item} />
+                                })
+                                :
+                                null
+                            }
+                        </div>
+                }
+
+
+            </div >
         )
     }
 }
