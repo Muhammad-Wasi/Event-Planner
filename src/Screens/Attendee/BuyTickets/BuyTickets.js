@@ -15,6 +15,8 @@ class BuyTickets extends Component {
             list: [],
             selectList: [],
             bookSeats: [],
+            firstNum: '',
+            lastNum: ''
         }
 
         this.select = this.select.bind(this);
@@ -24,6 +26,17 @@ class BuyTickets extends Component {
     logout() {
         localStorage.clear();
         this.props.history.push('/')
+    }
+
+    componentWillMount() {
+        const user = localStorage.getItem('User');
+        const signupData = localStorage.getItem('SignupData');
+        const selected = localStorage.getItem('selected');
+        const cardID = localStorage.getItem('CardID');
+
+        console.log('user', user)
+        // this.props.changeStateToReducer(userDataObj);
+        !user && !signupData && !selected && !cardID && this.props.history.push('/')
     }
 
     componentDidMount() {
@@ -52,6 +65,7 @@ class BuyTickets extends Component {
 
             const firstNum = Number(snapshot.val().startNum);
             const lastNum = Number(snapshot.val().endNum);
+            this.setState({ firstNum, lastNum })
             if (snapshot.val().startNum) {
                 for (var i = firstNum; i <= lastNum; i++) {
                     if (list.length != (lastNum - firstNum) + 1) {
@@ -100,7 +114,7 @@ class BuyTickets extends Component {
     }
 
     submit() {
-        const { selectList, eventKey, bookSeats } = this.state;
+        const { selectList, eventKey } = this.state;
         const userUID = localStorage.getItem('UserUID');
         if (selectList.length) {
             // const bookList = [...bookSeats, ...selectList]
@@ -119,7 +133,7 @@ class BuyTickets extends Component {
 
 
     render() {
-        const { eventData, list, selectList, bookSeats } = this.state;
+        const { eventData, list, selectList, bookSeats, firstNum, lastNum } = this.state;
         console.log("************", bookSeats)
         return (
             <div>
@@ -187,10 +201,10 @@ class BuyTickets extends Component {
                             null
                         }
                         <br />
-                        {list.length ?
-                            <Button variant="outlined" style={{ margin: '15px', color: '#a6e22e' }} size="large" onClick={this.submit}>Submit</Button>
+                        {list.length && list.length != lastNum - firstNum + 1 ?
+                            <Button variant="outlined" style={{ margin: '15px', color: '#a6e22e' }} size="large" onClick={this.submit}>Buy</Button>
                             :
-                            null
+                            <Button variant="outlined" style={{ margin: '15px' }} disabled>Buy</Button>
                         }
                     </div>
                 </div>

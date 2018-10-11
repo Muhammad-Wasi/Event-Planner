@@ -28,6 +28,16 @@ class Event extends Component {
         this.submit = this.submit.bind(this);
     }
 
+    componentWillMount() {
+        const user = localStorage.getItem('User');
+        const signupData = localStorage.getItem('SignupData');
+        const selected = localStorage.getItem('selected');
+
+        console.log('user', user)
+        // this.props.changeStateToReducer(userDataObj);
+        !user && !signupData && !selected && this.props.history.push('/')
+    }
+
     handleFileUpload() {
         let that = this;
         var preview = document.querySelector('img'); //selects the query named img

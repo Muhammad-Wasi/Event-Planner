@@ -277,14 +277,14 @@
 .EventDetailDiv h4{
   margin: 5px auto;
   padding: 0px 8px;
-  color: rgb(19, 71, 71);
-  /* background-color: rgb(9, 104, 104) */
-
+  color: black
 }
 .EventDetailDiv p{
   margin: 0px auto 5px auto;
-  padding: 0px 8px  ;
-  color: rgb(77, 76, 76)
+  padding: 0px 8px;
+  font-size: 14px;
+  /* color: rgb(65, 64, 64); */
+  color: rgb(131, 130, 130)
 }
 .EventDetailDiv2{
   width: 50%;
@@ -292,17 +292,3 @@
   text-align: center;
 
 }
-
-/* select{
-  text-align: center;
-  transition: 1s;
-  border: 1px solid lightblue;
-  border-radius: 5px;
-  margin: 3px auto 10px auto;
-  padding-left: 8px;
-  width: 320px;
-  height: 25px;
-  font-size: 18px;
-  font-weight: bold;
-  color: rgb(2, 49, 49);
-} */

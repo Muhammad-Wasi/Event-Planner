@@ -21,8 +21,11 @@ class Home extends Component {
         const userDataObj = JSON.parse(localStorage.getItem('SignupData'));
         this.setState({ userDataObj })
         const user = localStorage.getItem('User');
+        const signupData = localStorage.getItem('SignupData');
+        const selected = localStorage.getItem('selected');
+        console.log('user', user)
         // this.props.changeStateToReducer(userDataObj);
-        !user && this.props.history.push('/')
+        !user && !signupData && !selected && this.props.history.push('/')
     }
 
     componentDidMount() {

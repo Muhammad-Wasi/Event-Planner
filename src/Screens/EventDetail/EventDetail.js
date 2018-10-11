@@ -22,6 +22,14 @@ class EventDetail extends Component {
         const userRoll = localStorage.getItem('selected');
         this.setState({ eventKey, userRoll })
         swal.showLoading();
+        const user = localStorage.getItem('User');
+        const signupData = localStorage.getItem('SignupData');
+        const selected = localStorage.getItem('selected');
+        const cardID = localStorage.getItem('CardID');
+
+        console.log('user', user)
+        // this.props.changeStateToReducer(userDataObj);
+        !user && !signupData && !selected && !cardID && this.props.history.push('/')
     }
     componentDidMount() {
         const { eventKey, bookSeats, soldAllTickets } = this.state;

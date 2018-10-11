@@ -52,7 +52,7 @@ class MediaCard extends Component {
 
     notGoing(key) {
         const { userUID } = this.state;
-        console.log('notGoing***', key)
+        // console.log('notGoing***', key)
         firebase.database().ref('UserTimeline/' + userUID + '/' + key + '/').set('NotGoing')
     }
 
@@ -62,6 +62,7 @@ class MediaCard extends Component {
         const index = going.indexOf(key)
         going.splice(index, 1)
         this.setState({ going })
+        this.props.card(key)
     }
 
     removenotGoing(key) {
@@ -70,6 +71,7 @@ class MediaCard extends Component {
         const index = notgoing.indexOf(key)
         notgoing.splice(index, 1)
         this.setState({ notgoing })
+        this.props.card(key)
     }
 
     detail(id) {
@@ -80,14 +82,22 @@ class MediaCard extends Component {
         const userUID = localStorage.getItem('UserUID');
         const userRoll = localStorage.getItem('selected');
         this.setState({ userRoll, userUID })
+        const user = localStorage.getItem('User');
+        const signupData = localStorage.getItem('SignupData');
+        const selected = localStorage.getItem('selected');
+        const cardID = localStorage.getItem('CardID');
+
+        console.log('user', user)
+        // this.props.changeStateToReducer(userDataObj);
+        !user && !signupData && !selected && !cardID && this.props.history.push('/')
     }
 
     componentDidMount() {
         const { userUID, going, notgoing, eventKey, bookSeats, soldAllTickets } = this.state;
         firebase.database().ref('UserTimeline/' + userUID + '/').on('child_added', snapshot => {
-            console.log('SNapshot', snapshot)
-            console.log('Val***', snapshot.val())
-            console.log('Key***', snapshot.key)
+            // console.log('SNapshot', snapshot)
+            // console.log('Val***', snapshot.val())
+            // console.log('Key***', snapshot.key)
             if (snapshot.val() === 'Going') {
                 going.push(snapshot.key)
                 this.setState({ going })
@@ -107,7 +117,7 @@ class MediaCard extends Component {
                 for (var key in findBookedSeatsArr) {
                     const val = Object.values(Object.values(findBookedSeatsArr[key]))
                     for (var i = 0; i < val.length; i++) {
-                        console.log('VAl***', val[i])
+                        // console.log('VAl***', val[i])
                         bookSeats.push(...val[i])
                     }
                 }
@@ -115,9 +125,9 @@ class MediaCard extends Component {
 
             const firstNum = Number(snapshot.val().startNum);
             const lastNum = Number(snapshot.val().endNum);
-            console.log('******', lastNum - firstNum + 1, bookSeats, bookSeats.length)
+            // console.log('******', lastNum - firstNum + 1, bookSeats, bookSeats.length)
             if (lastNum - firstNum + 1 == bookSeats.length) {
-                console.log('bookSeats***', eventKey)
+                // console.log('bookSeats***', eventKey)
                 soldAllTickets.push(eventKey);
                 this.setState({ soldAllTickets })
             }
@@ -127,13 +137,13 @@ class MediaCard extends Component {
 
     }
     render() {
-        console.log('MediaCard***', this.props.eventObj)
+        // console.log('MediaCard***', this.props.eventObj)
         const { userRoll, going, notgoing, soldAllTickets } = this.state;
         const { eventObj } = this.props;
         const eventKey = eventObj.eventKey;
         const obj = eventObj.eventDetail
-        console.log('Going', going);
-        console.log('NotGoing', notgoing);
+        // console.log('Going', going);
+        // console.log('NotGoing', notgoing);
         return (
             <div className="Cards">
                 <Card className={'CardBorder MediaCard-card-79'}>

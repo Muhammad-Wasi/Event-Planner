@@ -16,10 +16,19 @@ class AttHome extends Component {
         }
 
         this.handle = this.handle.bind(this);
+        this.card = this.card.bind(this)
     }
 
     componentWillMount() {
-        swal.showLoading()
+        swal.showLoading();
+        const user = localStorage.getItem('User');
+        const signupData = localStorage.getItem('SignupData');
+        const selected = localStorage.getItem('selected');
+        const cardID = localStorage.getItem('CardID');
+
+        console.log('user', user)
+        // this.props.changeStateToReducer(userDataObj);
+        !user && !signupData && !selected && !cardID && this.props.history.push('/')
     }
 
     componentDidMount() {
@@ -44,27 +53,47 @@ class AttHome extends Component {
 
     handle(e) {
         const { timeline, select, userUID, list } = this.state;
-        console.log('Select Value**', e.target.value)
+        // console.log('Select Value**', e.target.value)
+        console.log('Handle Event Run ****')
         this.setState({ select: e.target.value })
         timeline.splice(0)
         this.setState({ timeline })
 
         firebase.database().ref('UserTimeline/' + userUID + '/').on('child_added', snapshot => {
-            console.log('SNapshot', snapshot)
-            console.log('Val***', snapshot.val())
+            // console.log('SNapshot', snapshot)
+            // console.log('Val***', snapshot.val())
             console.log('Key***', snapshot.key)
+            var dataVal = timeline.map(data => {
+                return data.eventKey
+            })
+            console.log('dataVal', dataVal)
             list.map(item => {
                 // console.log('select***', e.target.value)
                 if (snapshot.val() === e.target.value && item.eventKey === snapshot.key) {
-                    console.log(snapshot.val(), item)
-                    timeline.push(item)
-                    this.setState({ timeline })
+                    if (dataVal.indexOf(snapshot.key) === -1) {
+                        console.log(snapshot.val(), item)
+                        timeline.push(item)
+                        this.setState({ timeline })
+                    }
                 }
 
             })
         })
     }
 
+    card(key) {
+        const { timeline } = this.state;
+        console.log('Run******', key)
+        if (timeline.length) {
+            timeline.map(data => {
+                if (data.eventKey === key) {
+                    var index = timeline.indexOf(data.eventKey);
+                    timeline.splice(index, 1)
+                    this.setState({ timeline })
+                }
+            })
+        }
+    }
 
     render() {
         const { list, select, timeline } = this.state;
@@ -97,10 +126,10 @@ class AttHome extends Component {
                             onChange={this.handle}
                             displayEmpty
                             name="age"
-                            style={{ margin: '25px 5px', width: '70px' }}
+                            style={{ margin: '25px 5px', width: '100px' }}
                         >
                             <MenuItem value=''>
-                                <em>None</em>
+                                <em>All Events</em>
                             </MenuItem>
                             <MenuItem value='Going'>Going</MenuItem>
                             <MenuItem value='NotGoing'>Not Going</MenuItem>
@@ -113,20 +142,23 @@ class AttHome extends Component {
                         <div className="CardDiv">
                             {timeline.length ?
                                 timeline.map((item, index) => {
-                                    return <MediaCard eventObj={item} />
+                                    return <MediaCard eventObj={item} card={(key) => this.card(key)} />
                                 })
                                 :
-                                null
+                                setTimeout(() => {
+                                    <h1>No Data Found</h1>
+
+                                }, 10000)
                             }
                         </div>
                         :
                         <div className="CardDiv">
                             {list.length ?
                                 list.map((item, index) => {
-                                    return <MediaCard eventObj={item} />
+                                    return <MediaCard eventObj={item} card={(key) => this.card(key)} />
                                 })
                                 :
-                                null
+                                <h1>No Data Found</h1>
                             }
                         </div>
                 }
