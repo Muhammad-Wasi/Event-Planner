@@ -4,6 +4,7 @@ import '../../App.css';
 import firebase from 'firebase';
 import OrgHome from '../Organiser/Home/OrgHome';
 import AttHome from '../Attendee/Home/AttHome';
+import Roll from '../Roll/Roll'
 import swal from 'sweetalert2';
 // import { Link } from 'react-router-dom';
 // import { connect } from 'react-redux';
@@ -31,6 +32,7 @@ class Home extends Component {
     componentDidMount() {
         // const userDataObj = JSON.parse(localStorage.getItem('SignupData'));
         // this.setState({ userDataObj })
+        let that = this;
         const userUID = localStorage.getItem('UserUID')
         console.log('userUID', userUID)
         var select = localStorage.getItem("selected");
@@ -38,12 +40,21 @@ class Home extends Component {
         if (select) {
             this.setState({ selected: select })
         }
+        else if (!select) {
+            this.setState({ selected: '' })
+        }
         else {
             firebase.database().ref('Users/' + userUID + '/').on('child_added', (snapshot) => {
                 console.log('snapshot.key', snapshot.key);
                 console.log('snapshot.val()', snapshot.val())
+                // let that = this;
+                // if (!snapshot.val().selected) {
+                //     localStorage.removeItem('User')
+                //     that.props.history.push('/roll');
+                // }
                 const userDataObj = localStorage.setItem('SignupData', JSON.stringify(snapshot.val()));
                 this.setState({ userDataObj })
+
                 localStorage.setItem("selected", snapshot.val().selected)
                 this.setState({ selected: snapshot.val().selected })
             })
@@ -90,6 +101,9 @@ class Home extends Component {
                     }
                     {selected === "Attendee" &&
                         <AttHome />
+                    }
+                    {!selected === "" &&
+                        <Roll />
                     }
                 </div>
             </div>

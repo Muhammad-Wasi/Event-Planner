@@ -63,6 +63,7 @@ class Event extends Component {
         const db = firebase.database();
         const userUID = localStorage.getItem('UserUID');
         console.log(userUID)
+        // swal.showLoading();
         if (name && details && photo && location && address && startTime && endTime && sittingDetails && startNum && endNum && endNum > startNum && selected === "Paid" && price) {
             const numOfSeats = endNum - startNum;
             const eventObj = {
@@ -96,8 +97,9 @@ class Event extends Component {
             const eventObj = {
                 name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats: numOfSeats, selected, userUID
             }
-            console.log('eventObj', eventObj);
             swal.showLoading();
+
+            console.log('eventObj', eventObj);
             db.ref('Events/').push(eventObj)
                 .then(() => {
                     swal({
@@ -205,7 +207,7 @@ class Event extends Component {
                     <br />
                     <Button style={{ color: 'rgb(34, 157, 179)' }} onClick={this.submit} >Submit</Button>
                     <br />
-                    <Button style={{ marginBottom: '20px' }} color={"secondary"} onClick={() => { this.props.history.push('/home') }}>Cancle</Button>
+                    <Button style={{ marginBottom: '20px' }} color={"secondary"} onClick={() => { this.props.history.push('/home') }}>Cancel</Button>
                 </div>
             </div>
         )

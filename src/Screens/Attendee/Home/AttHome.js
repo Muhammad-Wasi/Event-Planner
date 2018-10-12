@@ -145,10 +145,7 @@ class AttHome extends Component {
                                     return <MediaCard eventObj={item} card={(key) => this.card(key)} />
                                 })
                                 :
-                                setTimeout(() => {
-                                    <h1>No Data Found</h1>
-
-                                }, 10000)
+                                <h1>No Data Found</h1>
                             }
                         </div>
                         :

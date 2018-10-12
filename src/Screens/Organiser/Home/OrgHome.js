@@ -17,7 +17,7 @@ class OrgHome extends Component {
     }
 
     componentWillMount() {
-        swal.showLoading()
+        // swal.showLoading()
         const user = localStorage.getItem('User');
         const signupData = localStorage.getItem('SignupData');
         const selected = localStorage.getItem('selected');
@@ -33,16 +33,20 @@ class OrgHome extends Component {
     }
 
     componentDidMount() {
+        swal.showLoading()
         const { list } = this.state;
         firebase.database().ref('Events/').on('child_added', snapshot => {
             console.log('OrgHome****', snapshot.key);
             console.log('OrgHome****', snapshot.val());
-            const eventObj = {
-                eventKey: snapshot.key,
-                eventDetail: snapshot.val()
+            if (snapshot.val().userUID === localStorage.getItem('UserUID')) {
+
+                const eventObj = {
+                    eventKey: snapshot.key,
+                    eventDetail: snapshot.val()
+                }
+                list.push(eventObj);
+                this.setState({ list })
             }
-            list.push(eventObj);
-            this.setState({ list })
             swal({
                 timer: 10,
                 showConfirmButton: false

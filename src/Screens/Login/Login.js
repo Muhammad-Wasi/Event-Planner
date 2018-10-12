@@ -128,7 +128,8 @@ class Login extends Component {
                                         return firebase.auth.signInWithCredential(credential);
                                     });
                             }).catch(function (error) {
-                                console.log("Sign In Error", error);
+                                console.log("signInWithCredential In Error", error);
+
                                 // swal({
                                 //     title: "error",
                                 //     text: error.message,
@@ -139,11 +140,13 @@ class Login extends Component {
                         })
                         .catch(function (error) {
                             console.log("Sign In Error", error);
-                            swal({
-                                title: "error",
-                                text: error.message,
-                                type: 'error'
-                            })
+                            if (error.message === "The password is invalid or the user does not have a password.") {
+                                swal({
+                                    title: "error",
+                                    text: error.message,
+                                    type: 'error'
+                                })
+                            }
 
                         });
                 });
@@ -222,7 +225,7 @@ class Login extends Component {
                         firebase.database().ref('Users/').once('value', (snapshot) => {
                             console.log('snapshot.key', snapshot.key)
                             console.log('snapShot.val', snapshot.val());
-                            if (snapshot.val() == null) {
+                            if (!snapshot.val() || !snapshot.val()[user.uid]) {
                                 swal({
                                     timer: 10,
                                     showConfirmButton: false
@@ -291,7 +294,7 @@ class Login extends Component {
                 firebase.database().ref('Users/').once('value', (snapshot) => {
                     console.log('snapshot.key', snapshot.key)
                     console.log('snapShot.val', snapshot.val());
-                    if (!snapshot.val()[user.uid]) {
+                    if (!snapshot.val() || !snapshot.val()[user.uid]) {
                         console.log('Nahi Hai****')
                         swal({
                             timer: 10,

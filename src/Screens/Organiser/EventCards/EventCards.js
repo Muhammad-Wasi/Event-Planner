@@ -133,8 +133,6 @@ class MediaCard extends Component {
             }
         })
 
-
-
     }
     render() {
         // console.log('MediaCard***', this.props.eventObj)
@@ -169,13 +167,13 @@ class MediaCard extends Component {
                             <Typography style={{ textAlign: 'center' }} gutterBottom variant="headline" component="h2">
                                 {obj.name}
                             </Typography>
-                            <Typography component="p">
-                                <div style={{ width: '55%', float: "left", height: '100px', overflow: 'hidden' }}>
-                                    {obj.details}
-                                </div>
-                                <div style={{ width: '45%', float: "left" }}>
-                                    {
-                                        userRoll === "Attendee" ?
+                            {
+                                userRoll === "Attendee" ?
+                                    <Typography component="p">
+                                        <div style={{ width: '55%', float: "left", height: '100px', overflow: 'hidden' }}>
+                                            {obj.details}
+                                        </div>
+                                        <div style={{ width: '45%', float: "left" }}>
                                             <span style={{ float: 'right' }}>
                                                 {
                                                     going.indexOf(eventKey) === -1 && notgoing.indexOf(eventKey) === -1 ?
@@ -195,12 +193,16 @@ class MediaCard extends Component {
                                                         </span>
                                                 }
                                             </span>
+                                        </div>
+                                    </Typography>
+                                    :
+                                    < Typography component="p">
+                                        <div style={{ width: '100%', height: '100px', overflow: 'hidden' }}>
+                                            {obj.details}
+                                        </div>
+                                    </Typography>
 
-                                            :
-                                            null
-                                    }
-                                </div>
-                            </Typography>
+                            }
                         </CardContent>
                     </CardActionArea>
                     <CardActions style={{ margin: '0px auto' }}>
@@ -234,7 +236,7 @@ class MediaCard extends Component {
                         } */}
                     </CardActions>
                 </Card>
-            </div>
+            </div >
 
         );
     }
