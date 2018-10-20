@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon } from '@material-ui/core';
+import { connect } from 'react-redux';
+import { AppBar, Button } from '@material-ui/core';
 import '../../App.css';
-import firebase from 'firebase';
-import swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
+import Navbar from '../../Components/Navbar/Navbar';
 
 class EventDetail extends Component {
     constructor(props) {
@@ -11,89 +11,28 @@ class EventDetail extends Component {
         this.state = {
             eventKey: '',
             eventObj: {},
-            userRoll: '',
             bookSeats: [],
             soldAllTickets: []
         }
 
     }
     componentWillMount() {
-        const eventKey = localStorage.getItem('CardID');
-        const userRoll = localStorage.getItem('selected');
-        this.setState({ eventKey, userRoll })
-        swal.showLoading();
-        const user = localStorage.getItem('User');
-        const signupData = localStorage.getItem('SignupData');
-        const selected = localStorage.getItem('selected');
-        const cardID = localStorage.getItem('CardID');
-
-        console.log('user', user)
-        // this.props.changeStateToReducer(userDataObj);
-        !user && !signupData && !selected && !cardID && this.props.history.push('/')
-    }
-    componentDidMount() {
-        const { eventKey, bookSeats, soldAllTickets } = this.state;
-        console.log('eventKey****', eventKey)
-        firebase.database().ref('Events/' + eventKey + '/').once('value', snapshot => {
-            console.log('snapshot.val()', snapshot.val())
-            this.setState({ eventObj: snapshot.val() })
-            swal({
-                timer: 10,
-                showConfirmButton: false
-            })
-            // })
-
-            // firebase.database().ref('Events/' + eventKey + '/').on('value', snapshot => {
-            if (snapshot.val().BookedSeats) {
-                const findBookedSeatsArr = Object.values(snapshot.val().BookedSeats);
-                bookSeats.splice(0);
-                this.setState({ bookSeats })
-                for (var key in findBookedSeatsArr) {
-                    const val = Object.values(Object.values(findBookedSeatsArr[key]))
-                    for (var i = 0; i < val.length; i++) {
-                        console.log('VAl***', val[i])
-                        bookSeats.push(...val[i])
-                    }
-                }
-            }
-
-            const firstNum = Number(snapshot.val().startNum);
-            const lastNum = Number(snapshot.val().endNum);
-            console.log('******', lastNum - firstNum + 1, bookSeats, bookSeats.length)
-            if (lastNum - firstNum + 1 == bookSeats.length) {
-                console.log('bookSeats***', eventKey)
-                soldAllTickets.push(eventKey);
-                this.setState({ soldAllTickets })
+        const { currentuserUID, eventsArray, eventKey } = this.props
+        let that = this;
+        eventsArray.map(item => {
+            if (item.eventKey === eventKey) {
+                return that.setState({ eventObj: item.eventDetail })
             }
         })
-
-    }
-    logout() {
-        localStorage.clear();
-        this.props.history.push('/')
     }
 
     render() {
-        const { eventObj, userRoll, soldAllTickets, eventKey } = this.state;
+        const { eventObj, soldAllTickets, eventKey } = this.state;
+        const { user } = this.props;
+        let role = user.role;
         return (
             <div className="detail">
-                <AppBar position="static" className="HomeBar" style={{ backgroundColor: "rgb(34, 157, 179)", height: '80px' }}>
-                    <div className="MainDiv">
-                        <div className="image">
-                            {/* {userDataObj.photo ?
-                                <img alt="User Profile Picture..." src={userDataObj.photo} style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
-                                : */}
-                            <img alt="User Profile Picture..." src="https://upload.wikimedia.org/wikipedia/en/e/ee/Unknown-person.gif" style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
-                            {/* } */}
-                        </div>
-                        <div className="Heading">
-                            <span>Event</span>
-                        </div>
-                        <div className="Button">
-                            <Button color={"secondary"} style={{ backgroundColor: 'white', width: '80px', float: "right", marginRight: '7px' }} onClick={this.logout.bind(this)} >LogOut</Button>
-                        </div>
-                    </div>
-                </AppBar>
+                <Navbar />
                 <div className="EventName">
                     <div style={{ width: '20%', paddingLeft: '10px' }}>
                         <Link to={'/home'}>
@@ -109,7 +48,7 @@ class EventDetail extends Component {
                     </div>
                     <div style={{ width: '20%', textAlign: 'end', paddingRight: '10px' }}>
                         {
-                            userRoll === 'Attendee' ?
+                            role === 'Attendee' ?
                                 <span>
                                     {
                                         soldAllTickets.indexOf(eventKey) !== -1 ?
@@ -163,4 +102,13 @@ class EventDetail extends Component {
     }
 }
 
-export default EventDetail;
+function mapStateToProps(state) {
+    return ({
+        currentuserUID: state.root.currentuserUID,
+        eventsArray: state.root.events,
+        eventKey: state.root.eventKey,
+        user: state.root.user,
+    })
+}
+
+export default connect(mapStateToProps, null)(EventDetail);

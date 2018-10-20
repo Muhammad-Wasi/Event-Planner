@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon } from '@material-ui/core';
 import '../../../App.css';
 import firebase from 'firebase';
@@ -28,15 +29,6 @@ class Event extends Component {
         this.submit = this.submit.bind(this);
     }
 
-    componentWillMount() {
-        const user = localStorage.getItem('User');
-        const signupData = localStorage.getItem('SignupData');
-        const selected = localStorage.getItem('selected');
-
-        console.log('user', user)
-        // this.props.changeStateToReducer(userDataObj);
-        !user && !signupData && !selected && this.props.history.push('/')
-    }
 
     handleFileUpload() {
         let that = this;
@@ -47,7 +39,6 @@ class Event extends Component {
         reader.onloadend = function () {
             let pic = { "url": "", val: "0" };
             pic.url = reader.result;
-            console.log('pic.url', pic.url)
             that.setState({ photo: pic.url });
         };
 
@@ -59,19 +50,16 @@ class Event extends Component {
     }
 
     submit() {
+        const { currentuserUID } = this.props;
         const { name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats, selected, price } = this.state;
         const db = firebase.database();
-        const userUID = localStorage.getItem('UserUID');
-        console.log(userUID)
-        // swal.showLoading();
         if (name && details && photo && location && address && startTime && endTime && sittingDetails && startNum && endNum && endNum > startNum && selected === "Paid" && price) {
             const numOfSeats = endNum - startNum;
             const eventObj = {
-                name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats: numOfSeats, selected, price, userUID
+                name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats: numOfSeats, selected, price, currentuserUID
             }
             swal.showLoading();
-            console.log('eventObj', eventObj);
-            db.ref('Events/').push(eventObj)
+            db.ref('events/').push(eventObj)
                 .then(() => {
                     swal({
                         title: "success",
@@ -83,6 +71,7 @@ class Event extends Component {
                     setTimeout(() => {
                         this.props.history.push('/home')
                     }, 1500)
+
                 })
                 .catch((error) => {
                     swal({
@@ -91,16 +80,16 @@ class Event extends Component {
                         type: 'error'
                     })
                 })
+
         }
         else if (name && details && photo && location && address && startTime && endTime && sittingDetails && startNum && endNum && endNum > startNum && selected === "Free") {
             const numOfSeats = endNum - startNum;
             const eventObj = {
-                name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats: numOfSeats, selected, userUID
+                name, details, photo, location, address, startTime, endTime, sittingDetails, startNum, endNum, seats: numOfSeats, selected, currentuserUID
             }
             swal.showLoading();
 
-            console.log('eventObj', eventObj);
-            db.ref('Events/').push(eventObj)
+            db.ref('events/').push(eventObj)
                 .then(() => {
                     swal({
                         title: "success",
@@ -177,14 +166,9 @@ class Event extends Component {
                     <br />
                     <textarea type="text" value={sittingDetails} onChange={e => { this.setState({ sittingDetails: e.target.value }) }} />
                     <br />
-                    {/* <label>Number Of Seats</label>
-                    <br />
-                    <input type="number" value={seats} onChange={e => { this.setState({ seats: e.target.value }) }} />
-                    <br /> */}
                     <label>Seat Number</label>
                     <br />
                     <input placeholder="From" className="SeatNo" type="number" value={startNum} onChange={e => { this.setState({ startNum: e.target.value }) }} />
-                    {/* <label>To</label> */}
                     <br />
                     <input placeholder="To" className="SeatNo" type="number" value={endNum} onChange={e => { this.setState({ endNum: e.target.value }) }} />
                     <br />
@@ -214,4 +198,11 @@ class Event extends Component {
     }
 }
 
-export default Event;
+function mapStateToProps(state) {
+    return ({
+        currentuserUID: state.root.currentuserUID,
+    })
+}
+
+
+export default connect(mapStateToProps, null)(Event);

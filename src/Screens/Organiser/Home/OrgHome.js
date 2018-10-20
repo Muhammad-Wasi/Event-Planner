@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import swal from 'sweetalert2';
+import { connect } from 'react-redux';
 import '../../../App.css';
 import { IconButton } from '@material-ui/core';
 import MediaCard from '../EventCards/EventCards';
-import firebase from 'firebase';
 
 class OrgHome extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            userUID: '',
             addForm: true,
             list: []
         }
@@ -16,47 +16,22 @@ class OrgHome extends Component {
         this.addForm = this.addForm.bind(this);
     }
 
-    componentWillMount() {
-        // swal.showLoading()
-        const user = localStorage.getItem('User');
-        const signupData = localStorage.getItem('SignupData');
-        const selected = localStorage.getItem('selected');
-        const cardID = localStorage.getItem('CardID');
-
-        console.log('user', user)
-        // this.props.changeStateToReducer(userDataObj);
-        !user && !signupData && !selected && !cardID && this.props.history.push('/')
+    componentDidMount() {
+        this.setState({ userUID: this.props.currentuserUID, list: this.props.eventsArray })
     }
 
+    componentWillReceiveProps(nextProps) {
+        setTimeout(() => {
+            this.setState({ userUID: nextProps.currentuserUID, list: nextProps.eventsArray })
+        }, 1)
+
+    }
     addForm() {
         this.props.addform()
     }
 
-    componentDidMount() {
-        swal.showLoading()
-        const { list } = this.state;
-        firebase.database().ref('Events/').on('child_added', snapshot => {
-            console.log('OrgHome****', snapshot.key);
-            console.log('OrgHome****', snapshot.val());
-            if (snapshot.val().userUID === localStorage.getItem('UserUID')) {
-
-                const eventObj = {
-                    eventKey: snapshot.key,
-                    eventDetail: snapshot.val()
-                }
-                list.push(eventObj);
-                this.setState({ list })
-            }
-            swal({
-                timer: 10,
-                showConfirmButton: false
-            })
-        })
-    }
-
     render() {
-        const { addForm, list } = this.state;
-        console.log('List**', list)
+        const { addForm, list, userUID } = this.state;
         return (
             <div className="OrgHome">
                 <div className="OrgHeader">
@@ -73,7 +48,9 @@ class OrgHome extends Component {
                 <div className="CardDiv">
                     {list.length ?
                         list.map((item, index) => {
-                            return <MediaCard eventObj={item} />
+                            if (item.eventDetail.currentuserUID === userUID) {
+                                return <MediaCard key={item.eventKey} eventObj={item} />
+                            }
                         })
                         :
                         null
@@ -86,4 +63,14 @@ class OrgHome extends Component {
     }
 }
 
-export default OrgHome;
+
+function mapStateToProps(state) {
+    return ({
+        currentuserUID: state.root.currentuserUID,
+        eventsArray: state.root.events,
+
+    })
+}
+
+
+export default connect(mapStateToProps, null)(OrgHome);

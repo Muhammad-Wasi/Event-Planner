@@ -1,6 +1,11 @@
-const userDataObj = localStorage.getItem('UserDataObj')
-const actionType = {
-    userDataObj: "userDataObj"
+const ActionTypes = {
+    CURRENTUSER: 'CURRENTUSER',
+    CURRENTUSERUID: 'CURRENTUSERUID',
+    EVENTS: 'EVENTS',
+    EVENTKEY: 'EVENTKEY',
+    GOINGKEY: 'GOINGKEY',
+    NOTGOINGKEY: 'NOTGOINGKEY',
+    CHANGES: 'CHANGES'
 }
 
-export default actionType;
+export default ActionTypes;

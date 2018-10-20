@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { AppBar, Button, Toolbar, IconButton, Typography, MenuIcon } from '@material-ui/core';
+import { connect } from 'react-redux';
+import { Button } from '@material-ui/core';
 import '../../../App.css';
 import firebase from 'firebase';
 import swal from 'sweetalert2';
 import { Link } from 'react-router-dom';
-import { element, array } from 'prop-types';
+import Navbar from '../../../Components/Navbar/Navbar';
 
 class BuyTickets extends Component {
     constructor(props) {
@@ -13,8 +14,11 @@ class BuyTickets extends Component {
             eventKey: '',
             eventData: {},
             list: [],
+            eventsArray: [],
+            userUID: '',
             selectList: [],
             bookSeats: [],
+            yourSeats: [],
             firstNum: '',
             lastNum: ''
         }
@@ -29,66 +33,60 @@ class BuyTickets extends Component {
     }
 
     componentWillMount() {
-        const user = localStorage.getItem('User');
-        const signupData = localStorage.getItem('SignupData');
-        const selected = localStorage.getItem('selected');
-        const cardID = localStorage.getItem('CardID');
-
-        console.log('user', user)
-        // this.props.changeStateToReducer(userDataObj);
-        !user && !signupData && !selected && !cardID && this.props.history.push('/')
+        const { currentuserUID, eventsArray, eventKey } = this.props
+        this.setState({
+            userUID: currentuserUID,
+            eventsArray: eventsArray,
+            eventKey: eventKey
+        })
     }
-
     componentDidMount() {
-        const { list, bookSeats } = this.state;
-        const eventKey = localStorage.getItem('CardID');
-        this.setState({ eventKey });
-        console.log('eventKey***', eventKey)
-        firebase.database().ref('Events/' + eventKey + '/').on('value', snapshot => {
-            console.log('Value', snapshot.val())
-            if (snapshot.val().BookedSeats) {
-                const findBookedSeatsArr = Object.values(snapshot.val().BookedSeats);
-                console.log('findBookedSeatsArr', findBookedSeatsArr, findBookedSeatsArr.length)
-                bookSeats.splice(0);
-                this.setState({ bookSeats })
-                for (var key in findBookedSeatsArr) {
-                    const val = Object.values(Object.values(findBookedSeatsArr[key]))
-                    console.log('Val**', val, val.length, bookSeats.length)
-                    for (var i = 0; i < val.length; i++) {
-                        console.log('VAl***', val[i])
-                        bookSeats.push(...val[i])
+        const { list, bookSeats, eventKey, eventsArray, yourSeats } = this.state;
+        let that = this;
+        eventsArray.map(item => {
+            if (item.eventKey === eventKey) {
+                const eventData = item.eventDetail;
+                firebase.database().ref(`events/${eventKey}/`).on('value', snapshot => {
+                    if (snapshot.val().bookedSeats) {
+                        const findBookedSeatsArr = Object.values(snapshot.val().bookedSeats);
+                        bookSeats.splice(0);
+                        this.setState({ bookSeats })
+                        for (var key in findBookedSeatsArr) {
+                            const val = Object.values(Object.values(findBookedSeatsArr[key]))
+                            for (var i = 0; i < val.length; i++) {
+                                bookSeats.push(...val[i])
+                                that.setState({ bookSeats })
+                            }
+                        }
                     }
-                }
-            }
-            this.setState({ eventData: snapshot.val() })
+                })
+                this.setState({ eventData: eventData })
 
 
-            const firstNum = Number(snapshot.val().startNum);
-            const lastNum = Number(snapshot.val().endNum);
-            this.setState({ firstNum, lastNum })
-            if (snapshot.val().startNum) {
-                for (var i = firstNum; i <= lastNum; i++) {
-                    if (list.length != (lastNum - firstNum) + 1) {
-                        list.push(i)
-                        this.setState({ list })
+                const firstNum = Number(eventData.startNum);
+                const lastNum = Number(eventData.endNum);
+                this.setState({ firstNum, lastNum })
+                if (eventData.startNum) {
+                    for (var i = firstNum; i <= lastNum; i++) {
+                        if (list.length != (lastNum - firstNum) + 1) {
+                            list.push(i)
+                            this.setState({ list })
+                        }
                     }
                 }
+                swal({
+                    timer: 100,
+                    showConfirmButton: false
+                })
             }
-            swal({
-                timer: 100,
-                showConfirmButton: false
-            })
         })
         if (!list.length) {
             swal.showLoading()
         }
-        // console.log('eventData.startNum', eventData.startNum)
     }
 
     select(index, element) {
         const { selectList } = this.state;
-        console.log('index***', index)
-        console.log('element***', element)
         const selectIndex = selectList.indexOf(element);
         if (selectList.length < 10) {
             if (selectIndex !== -1) {
@@ -114,12 +112,10 @@ class BuyTickets extends Component {
     }
 
     submit() {
-        const { selectList, eventKey } = this.state;
-        const userUID = localStorage.getItem('UserUID');
+        const { selectList, eventKey, userUID, bookSeats } = this.state;
         if (selectList.length) {
-            // const bookList = [...bookSeats, ...selectList]
-            // console.log('bookSeats***', bookSeats)
-            firebase.database().ref('Events/' + eventKey + '/BookedSeats/' + userUID + '/').push(selectList)
+            const bookList = [...bookSeats, ...selectList]
+            firebase.database().ref('events/' + eventKey + '/bookedSeats/' + userUID + '/').push(selectList)
             this.setState({ selectList: [] })
 
         }
@@ -134,26 +130,9 @@ class BuyTickets extends Component {
 
     render() {
         const { eventData, list, selectList, bookSeats, firstNum, lastNum } = this.state;
-        console.log("************", bookSeats)
         return (
             <div>
-                <AppBar position="static" className="HomeBar" style={{ backgroundColor: "rgb(34, 157, 179)", height: '80px' }}>
-                    <div className="MainDiv">
-                        <div className="image">
-                            {/* {userDataObj.photo ?
-                                <img alt="User Profile Picture..." src={userDataObj.photo} style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
-                                : */}
-                            <img alt="User Profile Picture..." src="https://upload.wikimedia.org/wikipedia/en/e/ee/Unknown-person.gif" style={{ width: '60px', height: '60px', borderRadius: '60px' }} />
-                            {/* } */}
-                        </div>
-                        <div className="Heading">
-                            <span>Event</span>
-                        </div>
-                        <div className="Button">
-                            <Button color={"secondary"} style={{ backgroundColor: 'white', width: '80px', float: "right", marginRight: '7px' }} onClick={this.logout.bind(this)} >LogOut</Button>
-                        </div>
-                    </div>
-                </AppBar>
+                <Navbar />
                 <div className="EventName">
                     <div style={{ width: '20%', paddingLeft: '10px' }}>
                         <Link to={'/home'}>
@@ -189,7 +168,9 @@ class BuyTickets extends Component {
                                             <span>
                                                 {
                                                     selectList.indexOf(item) !== -1 ?
-                                                        <Button variant="outlined" style={{ margin: '5px', color: '#a6e22e' }} size="small" onClick={() => this.select(index, item)}>{item}</Button>
+                                                        <span>
+                                                            <Button variant="outlined" style={{ margin: '5px', color: '#a6e22e' }} size="small" onClick={() => this.select(index, item)}>{item}</Button>
+                                                        </span>
                                                         :
                                                         <Button variant="outlined" style={{ margin: '5px' }} size="small" color={"primary"} onClick={() => this.select(index, item)}>{item}</Button>
                                                 }
@@ -201,7 +182,7 @@ class BuyTickets extends Component {
                             null
                         }
                         <br />
-                        {list.length && list.length != lastNum - firstNum + 1 ?
+                        {list.length && bookSeats.length !== ((lastNum - firstNum) + 1) ?
                             <Button variant="outlined" style={{ margin: '15px', color: '#a6e22e' }} size="large" onClick={this.submit}>Buy</Button>
                             :
                             <Button variant="outlined" style={{ margin: '15px' }} disabled>Buy</Button>
@@ -213,4 +194,12 @@ class BuyTickets extends Component {
     }
 }
 
-export default BuyTickets;
+function mapStateToProps(state) {
+    return ({
+        currentuserUID: state.root.currentuserUID,
+        eventsArray: state.root.events,
+        eventKey: state.root.eventKey,
+    })
+}
+
+export default connect(mapStateToProps, null)(BuyTickets);

@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import reducer from './Reducer/index';
+import reducer from './Reducer';
 
 const store = createStore(
     // pehla reducer lega bhale wo jitne bhi hon abhi filhal ek hi hai,

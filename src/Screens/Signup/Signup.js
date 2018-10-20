@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { signupAction } from '../../Store/Action/action';
+import { connect } from 'react-redux';
 import { AppBar, Button } from '@material-ui/core';
 import swal from 'sweetalert2';
 import '../../App.css';
@@ -14,8 +16,7 @@ class Signup extends Component {
             email: '',
             password: '',
             confrimPassword: '',
-            selected: '',
-            photo: ''
+            role: '',
         }
         this.name = this.name.bind(this);
         this.email = this.email.bind(this);
@@ -45,50 +46,16 @@ class Signup extends Component {
     }
 
     signup() {
-        const db = firebase.database();
-        const { name, email, password, confrimPassword, selected, photo } = this.state;
+        const { name, email, password, confrimPassword, role, photo } = this.state;
         console.log(email, password, confrimPassword);
-        let that = this;
-        if (name && email && password && confrimPassword && selected) {
-            if (password === confrimPassword && email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
+        if (name && email && password && confrimPassword && role) {
+            if (password === confrimPassword) {
                 swal.showLoading();
-                const userInfo = { name, email, selected };
-                firebase.auth().createUserWithEmailAndPassword(email, password)
-                    .then(() => {
-                        var userUID = firebase.auth().currentUser.uid
-                        console.log('UserUID', userUID);
-                        const userInfo = { name, email, selected };
-                        db.ref("Users/" + userUID + '/').push(userInfo)
-                        swal({
-                            title: "success",
-                            text: "Signup Successful",
-                            type: 'success',
-                            showConfirmButton: false,
-                            timer: 1500,
-                        })
-                        setTimeout(() => {
-                            this.props.history.push('/')
-                        }, 1500)
-
-                    })
-                    .catch(function (error) {
-                        swal({
-                            title: "error",
-                            text: error.message,
-                            type: 'error'
-                        })
-                        console.log('Error in signup')
-                    });
+                const userDetails = { name, email, password, role };
+                this.props.signupwithEmailPassword(userDetails);
             }
             else {
-                if (!email.match(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)) {
-                    swal({
-                        title: "error",
-                        text: 'Wrong Email Address',
-                        type: 'error'
-                    })
-                }
-                else if (password !== confrimPassword) {
+                if (password !== confrimPassword) {
                     swal({
                         title: "error",
                         text: 'Password Did not Match',
@@ -107,8 +74,7 @@ class Signup extends Component {
     }
 
     render() {
-        const { name, email, password, confrimPassword, selected, photo } = this.state;
-        console.log('photo***', photo)
+        const { name, email, password, confrimPassword, role } = this.state;
         return (
             <div>
                 <AppBar position={"static"} style={{ backgroundColor: 'rgb(34, 157, 179)' }} className="AppBar">
@@ -132,11 +98,11 @@ class Signup extends Component {
                     <input type="password" value={confrimPassword} onChange={(e) => this.confrimPassword(e)} />
                     <br />
                     <label className="Radio">
-                        <input type="radio" name="panel" value="Organiser" checked={selected === 'Organiser'} onChange={(e) => this.setState({ selected: e.target.value })} />
+                        <input type="radio" name="panel" value="Organiser" checked={role === 'Organiser'} onChange={(e) => this.setState({ role: e.target.value })} />
                         Organiser
                     </label>
                     <label className="Radio">
-                        <input type="radio" name="panel" value="Attendee" checked={selected === 'Attendee'} onChange={(e) => this.setState({ selected: e.target.value })} />
+                        <input type="radio" name="panel" value="Attendee" checked={role === 'Attendee'} onChange={(e) => this.setState({ role: e.target.value })} />
                         Attendee
                     </label>
                     <br />
@@ -151,4 +117,15 @@ class Signup extends Component {
 
 }
 
-export default Signup;
+function mapDispatchToProp(dispatch) {
+    return ({
+        signupwithEmailPassword: (userDetails) => {
+            dispatch(signupAction(userDetails));
+        }
+    })
+}
+
+export default connect(null, mapDispatchToProp)(Signup);
+
+
+
